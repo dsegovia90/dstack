@@ -33,21 +33,33 @@ produced one of them.
    resumability_cadence: days-apart
    retro_cadence: per-phase
    ```
-2. **Pass 1 — Intake:** guided questions produce the "what" — product intent, problem, MVP
-   surface, success criteria. See `examples/reference-project/notes.md`'s "Pass 1" section.
-   Written into `doc/dstack/<project>/notes.md`, the *same* file every later pass reuses.
-3. **Pass 2 — Architecture:** the same doc gets rewritten through a structural lens — data
-   model, components, the "how." Ticket grooming falls out of this pass as a side effect (see
-   that doc's "Rough ticket-shaped seams" list) — it's not a separate step.
-4. **Pass 3 — Execution phasing + DAG:** the groomed seams become real tickets (`D1`–`D5` in
+2. **Get grounded, then check the repo profile:** before Pass 1 content begins, the skill asks
+   whether you already have something to start from — a rough idea, an existing spec, a
+   drafted plan — and assesses it against Pass 1/2/3 rather than re-deriving anything it
+   already answers. It also checks whether the host repo's durable facts (stack, conventions,
+   auth pattern, domain model, test framework) are already covered in `CLAUDE.md`, per
+   dimension, before running any research. See `examples/reference-project/notes.md`'s
+   "Grounding" section and `examples/reference-project/repo-profile.md` — in this example,
+   `CLAUDE.md` covered three of five dimensions, so only the missing two were researched and
+   written down, not the whole set.
+3. **Pass 1 — Intake:** guided questions fill in whatever Step 1.6 didn't already answer — the
+   "what": product intent, problem, MVP surface, success criteria. See
+   `examples/reference-project/notes.md`'s "Pass 1" section. Written into
+   `doc/dstack/<project>/notes.md`, the *same* file every later pass reuses.
+4. **Pass 2 — Architecture:** the same doc gets rewritten through a structural lens — data
+   model, components, the "how" — grounded against the repo profile from step 2 plus a narrow,
+   scoped look at just the area this feature touches, not a full-repo sweep. Ticket grooming
+   falls out of this pass as a side effect (see that doc's "Rough ticket-shaped seams" list) —
+   it's not a separate step.
+5. **Pass 3 — Execution phasing + DAG:** the groomed seams become real tickets (`D1`–`D5` in
    the reference project), chained by `blocked-by`/`blocks` into a dependency graph, with roots
    and topological phases called out. See that doc's "Pass 3" section for the diagram.
-5. **Fork the ticketing backend:** Linear (structured/team) or a local `TODO.md` (lighter,
+6. **Fork the ticketing backend:** Linear (structured/team) or a local `TODO.md` (lighter,
    solo-friendly) — see the Decision guide below for which. The reference project uses the
    local fork: `TODO.md` is generated as a **skeleton only** (one line per ticket, the DAG
    diagram, phases, a status legend) — full detail moves to `tickets/<id>.md`, created as empty
    stubs for every ticket right away so nothing links to nowhere.
-6. **Pick and work a ticket:** the next-ticket command scans for untriaged `findings/` first
+7. **Pick and work a ticket:** the next-ticket command scans for untriaged `findings/` first
    (a hard gate — see below), computes the eligible frontier (open tickets with every
    dependency done), and presents its pick with reasoning and alternatives. Once confirmed, a
    plan-mode micro-plan happens before any code — cadence depends on the `risk_tolerance`
@@ -55,16 +67,16 @@ produced one of them.
    actually shipped" section: the plan changed once real implementation surfaced a wrinkle
    (needing per-user timezone, not just day-of-week), and the ticket was rewritten to match,
    in the same commit as the code.
-7. **Findings show up mid-project too.** `findings/email-deliverability-review.md` is a
+8. **Findings show up mid-project too.** `findings/email-deliverability-review.md` is a
    discovery made *while* working D3, unrelated to D3's original scope — it got folded
    straight into that ticket rather than left to rot as a loose file. Compare
    `findings/rate-limit-audit.md`, still `status: new` in this example on purpose: that's what
    the next ticket-pick's findings scan is designed to catch before it gets ignored.
-8. **Blockers get named, not hidden.** `tickets/D4.md` is `[!]` blocked — not because anything
+9. **Blockers get named, not hidden.** `tickets/D4.md` is `[!]` blocked — not because anything
    broke, but because an architecture-time open question (which scheduler to use) never
    actually got resolved before the ticket became eligible. The 🚧 marker means: don't push
    through this autonomously at any risk-tolerance setting, surface it to a human instead.
-9. **Retro, on the cadence you asked for.** `retros/2026-06-14-retro.md` was triggered at a
+10. **Retro, on the cadence you asked for.** `retros/2026-06-14-retro.md` was triggered at a
    phase boundary (`retro_cadence: per-phase`) — it reads the *real* history (git log, ticket
    files, findings) rather than the plan, and ends with process-observations worth watching for
    recurrence across other projects. Anything that does recur belongs in this repo's own

@@ -4,8 +4,10 @@ description: >-
   Interactive planning-first workflow guide for this repo (the "dstack" process).
   Use when the user types /dstack or says "dstack", or otherwise wants to start or
   resume planning a piece of work — primarily a NEW FEATURE, but also a bug, refactor,
-  or research effort. It asks guiding questions rather than dumping a doc: it advances
-  ONE living design doc through Pass 1 (intake) → Pass 2 (architecture) → Pass 3
+  or research effort. Starts from a blank idea, an existing spec, or a drafted plan —
+  it assesses what's already answered rather than re-deriving it. It asks guiding
+  questions rather than dumping a doc: it advances ONE living design doc through Pass 1
+  (intake) → Pass 2 (architecture) → Pass 3
   (execution phasing + ticket DAG), then forks ticketing to either Linear (hand off to
   /dstack-ticket) or a local TODO.md (hand off to /dstack-yolo). Project-specific.
 ---
@@ -75,6 +77,7 @@ team_shape: solo | small-team | larger-team
 risk_tolerance: gate-every-ticket | gate-first-and-risky | full-autonomy-except-gates
 resumability_cadence: same-day | days-apart | unpredictable-weeks
 retro_cadence: per-phase | close-out-only
+repo_profile_location: claude-md | dstack-file | mixed | none
 ---
 ```
 
@@ -92,15 +95,75 @@ retro_cadence: per-phase | close-out-only
 4. **Retro cadence** — *per-phase checkpoints (recommended default)* / close-out only. Sets when
    `/dstack-retro` gets suggested during execution (always human-confirmed, never automatic).
 
+## Step 1.6 — Get grounded (source material)
+
+Ask: **do you already have something to start from** — a rough idea, a feature spec someone
+already wrote, a technical plan drafted elsewhere, an existing ticket — or are we starting
+blank? *(Recommended: point me at whatever exists, even partial — starting blank is fine too.)*
+
+If material is provided:
+- **Assess it against Pass 1 / Pass 2 / Pass 3**, not against a blank template. Check whether it
+  already answers Pass 1 (product intent, problem, MVP surface, success criteria), already
+  contains Pass 2 decisions (data model, API shape, components), or already has a Pass 3
+  execution/DAG breakdown.
+- **Write whatever's already answered straight into the matching section(s) of `notes.md`** —
+  don't re-derive it, don't re-ask the guiding questions it already settles. A one-line
+  provenance note per section (where it came from) is enough.
+- **Only run the guiding questions for what's genuinely missing or ambiguous** in the provided
+  material. Treat this the same as resuming an existing project (Step 0): extend, don't replace.
+- This assessment **sets the recommended entry pass for Step 2** — state it as a recommendation
+  with reasoning (e.g. "this reads like a settled Pass 1 with no architecture yet, so Pass 2 is
+  the natural entry point"), but still confirm via `AskUserQuestion` rather than deciding
+  silently.
+
+If nothing is provided, this step is a no-op — proceed to Step 1.7, then Step 2's Pass 1 as
+normal.
+
+## Step 1.7 — Repo profile (existing codebases only)
+
+Skip this step for a brand-new codebase with nothing built yet, and skip it when resuming (the
+project's earlier answer persists in front matter as `repo_profile_location`). For work landing
+in an existing repo, dstack needs a small set of **durable, slow-changing facts** — stack,
+conventions, directory layout, auth pattern, domain model overview, test framework — *once per
+project*, not re-derived per feature. These barely change day to day, so treat them as a
+one-time-ish artifact rather than a per-feature cost.
+
+1. **Check `CLAUDE.md` first, per-dimension** — not a binary exists/doesn't-exist check. For
+   each fact dstack needs, does `CLAUDE.md` already answer it?
+   - **Fully covered:** reference `CLAUDE.md` in the profile record, don't copy its content —
+     one source of truth per fact, so the two never drift apart.
+   - **Partially covered:** tell the user plainly what's there and what's missing (e.g. "your
+     `CLAUDE.md` covers stack and conventions, but not the auth pattern or domain model") and
+     ask, via `AskUserQuestion`: **add the missing pieces to `CLAUDE.md`** *(recommended — any
+     future session benefits, not just dstack)*, or **consolidate everything into dstack's own
+     file** (`doc/dstack/<project>/repo-profile.md`)?
+   - **No `CLAUDE.md` at all:** same question, framed as *create one* (recommended, same reason)
+     vs. a dstack-only file.
+2. **Run the research process only for the missing dimensions** — never a full re-sweep of
+   dimensions already answered.
+3. **Record the destination decision** in the project's front matter
+   (`repo_profile_location: claude-md | dstack-file | mixed`) so this is asked once per project,
+   never once per feature.
+4. **This profile is not what grounds an individual feature.** When Pass 2 runs for any given
+   feature (Step 2, below), it should also do a **narrow, scoped look at just the area that
+   feature touches** — done fresh every time, because scoping it down is what keeps it cheap, not
+   caching it. The durable profile only gets *patched*, never wholesale regenerated, if that
+   scoped look turns up something that contradicts it — the same discipline as post-completion
+   re-spec, aimed at the profile doc instead of a ticket.
+
 ## Step 2 — Establish the project + entry pass
 
 If starting fresh, ask for a short **project name** (kebab-case) → this becomes
-`doc/dstack/<project>/`. Then ask **which pass we're entering**:
+`doc/dstack/<project>/`. Then confirm **which pass we're entering** — if Step 1.6 assessed
+provided material, put its recommendation to the user as the default option rather than asking
+blind; otherwise ask directly:
 - **Pass 1 — Intake:** the *what*. Product intent, the problem, the MVP surface, success
   criteria. Output: `doc/dstack/<project>/notes.md` with the Pass-1 sections (plus the Step 1.5
   front matter).
 - **Pass 2 — Architecture:** rewrite the *same* doc through a structural lens (data model,
-  API, components, the *how*); ticket grooming falls out of this as a side effect.
+  API, components, the *how*); ticket grooming falls out of this as a side effect. Ground it in
+  the durable repo profile (Step 1.7) plus a narrow, scoped look at the specific area this
+  feature touches — not a full-repo sweep.
 - **Pass 3 — Execution phasing + DAG:** add an execution-by-phases section; turn the groomed
   seams into tickets chained by dependency (`blocked-by` / `blocks`), with roots and
   topological phases called out. **Keep this ticket set to one-liners in the doc itself** —

@@ -4,6 +4,7 @@ team_shape: solo
 risk_tolerance: gate-every-ticket
 resumability_cadence: days-apart
 retro_cadence: per-phase
+repo_profile_location: mixed
 last_session_at: 2026-06-14T09:00:00-06:00
 ---
 
@@ -12,6 +13,20 @@ last_session_at: 2026-06-14T09:00:00-06:00
 _Illustrative reference project for the dstack v2 conventions. Fictional app: a saved-articles
 tool. This doc shows the full shape end to end — a real project's Pass 1/2 prose will be
 longer and more specific than this, but the structure and section names are the point._
+
+---
+
+## Grounding (Steps 1.6 – 1.7)
+
+- **Step 1.6 — source material:** started from a two-sentence idea note ("people save articles
+  and never come back — send a weekly digest"), not a full spec or plan. That note answered
+  Product intent; everything else in Pass 1 below (Problem, MVP surface, Out of scope, Success
+  criteria) was elicited fresh via guided questions, same as if nothing had been provided.
+- **Step 1.7 — repo profile:** the host app's `CLAUDE.md` already covered stack, conventions,
+  and testing; auth pattern and domain model overview weren't documented there yet, so those
+  two dimensions live in [`repo-profile.md`](repo-profile.md) in this folder instead
+  (`repo_profile_location: mixed`, front matter above). Pass 2's Data model and Component
+  architecture below were grounded against both sources.
 
 ---
 

@@ -24,7 +24,7 @@ It is **not** three (or four) separate files. Passes 1–3 converge on one enric
 ## The four passes
 
 ### Pass 1 — Intake (the "what")
-Work arrives as a **design doc**, sometimes with **rough tickets**, typically from the lead. This is the product/requirements layer. I receive it; I don't own it. It says *what* we're building, not *how*.
+Work can arrive three ways: a **rough idea** with nothing written down yet, an **existing spec** someone already drafted, or a **technical plan** drafted elsewhere. This is the product/requirements layer — it says *what* we're building, not *how*. The job at this pass is to **assess what's already been answered and only elicit the rest**: a settled spec shouldn't get re-derived from scratch just because it wasn't authored inside this process; a blank idea gets the full set of guiding questions. Either way, the output is the same — `notes.md`'s Pass-1 sections, filled in wherever the input already answers them and elicited wherever it doesn't.
 
 ### Pass 2 — Architectural rewrite (the structural "how")
 I **rewrite the design doc through an architectural lens.** This is the step I fully own — translating product intent into the *shape* of a solution.
@@ -92,6 +92,20 @@ The fix is structural, not a discipline to remember: **three tiers, not two.**
 3. **Per-ticket detail** — scope, files, acceptance, the Pass-4 micro-plan, and the re-spec narrative once it exists. Created as a stub the moment a ticket enters the DAG (so pointers never dangle), filled in only when the ticket is actually picked — depth exists exactly where work has reached, not everywhere at once.
 
 Where a ticketing system with its own navigable detail view already exists, it *is* tier 2+3 combined — don't also duplicate ticket scope/acceptance into the doc. That's pure redundancy with no sync guarantee: two copies of the same fact, one of which will eventually go stale. The doc references a ticket by id/link and a one-line title, full stop; the ticketing system is the sole source of ticket detail.
+
+---
+
+## Grounding: a durable repo profile vs. scoped per-feature research
+
+A codebase's **slow-changing facts** — stack, conventions, directory layout, auth pattern, domain model overview, test framework — cost nothing to get wrong once and expensive to keep re-deriving. Left unhandled, this becomes a choice between two bad defaults: skip grounding entirely (Pass 2 architects blind, disconnected from what's actually on disk) or re-research the whole codebase before every feature (expensive, and mostly re-answering questions whose answers haven't moved).
+
+The fix is the same shape as the two-resolution principle above: **split by how fast the fact changes, not by which pass needs it.**
+
+- **Durable facts** (stack, conventions, auth pattern, layout, domain model, test framework) go in a **repo profile**, generated close to once per project, not once per feature. Prefer surfacing this in `CLAUDE.md` (or an equivalent project doc) if one exists or can exist — anything durable that lives there benefits every future session, not just this process's. Only fall back to a process-owned file for facts that genuinely don't belong in a general-purpose project doc.
+- **Feature-specific facts** (the actual models/policies/routes/services a given feature touches) stay **scoped and fresh every time** — narrow enough that re-deriving them per feature is cheap, which is what makes freshness free instead of costly.
+- The durable profile is **patched, not regenerated**, when scoped research contradicts it — the same post-completion-re-spec discipline applied to the profile doc instead of a ticket.
+
+Getting this split wrong in either direction reproduces a known failure mode: too coarse (one big repeated sweep) pays the cost of staleness-avoidance on facts that weren't stale; too fine (no durable layer at all) pays the opposite cost, re-deriving stable facts on every single feature.
 
 ---
 
@@ -242,3 +256,4 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 12. **Keep the project alive past launch.** Bugs and fast-follows join the same graph, so the accumulated, truthful context stays queryable by the model for the life of the system.
 13. **Retrospect on purpose.** Reading the accumulated history as a set — not just each entry individually — is what turns local honesty into process improvement over time.
 14. **Ask what shapes the project before starting.** Team shape, risk tolerance, resumability cadence, and retro cadence aren't bureaucracy — each one changes a concrete downstream default that would otherwise be guessed at, differently, every time.
+15. **Split grounding by volatility.** Durable repo facts prefer `CLAUDE.md` and get patched, not regenerated; feature-specific facts stay scoped and fresh every single time.
