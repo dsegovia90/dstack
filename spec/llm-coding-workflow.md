@@ -147,6 +147,8 @@ The fix mirrors the re-spec keystone's own logic — give freestanding discoveri
 
 This is the same forcing function that already makes ticket-scoped re-spec reliable, aimed one level up — at the things that never became tickets in the first place.
 
+The concrete mechanics of "a place the process treats as unfinished business" differ by ticketing backend: a file with `status:` frontmatter for a local backend, or a structured backend's own native fields (e.g. a status + a label) for one like Linear — see the relevant harness command for the specifics of either.
+
 ---
 
 ## Working a session

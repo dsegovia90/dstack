@@ -37,23 +37,37 @@ List the projects under **`doc/dstack/`** (each subdirectory is a project).
 
 ## 3. Scan for un-triaged findings — before anything else
 
-Check the project's `findings/` folder (Fork B) — or, for Fork A, ask whether any freestanding
-review/audit output has been produced recently that hasn't been folded into Linear. Any finding
-with `status: new` (or untriaged Fork A discovery) must be surfaced and triaged **before**
-computing the eligible frontier below. Present each one and get the user to choose one of the
-three legal outcomes:
+An un-triaged finding must be surfaced **before** computing the eligible frontier below.
+Present each one and get the user to choose one of the three legal outcomes — fold into an
+existing ticket, spawn a new ticket, or dismiss with a one-line reason. How to check, and what
+each outcome means mechanically, depends on the ticketing fork:
 
-1. **Fold into an existing ticket** — re-spec that ticket's scope now (Fork B: edit
-   `tickets/<id>.md`; Fork A: Linear comment + description update per Step 4 below), citing the
-   finding, and flip its `status` to `absorbed`.
-2. **Spawn a new ticket** — add it to the DAG (Fork B: new line in `TODO.md` + new
-   `tickets/<id>.md` stub, wired into `blocked-by`/`blocks`; Fork A: new linked Linear issue),
-   flip `status` to `absorbed`.
-3. **Dismiss** — record a one-line reason in the finding file itself, flip `status` to
-   `dismissed`.
+- **Fork B (local `TODO.md`)** — check the project's `findings/` folder for anything with
+  `status: new`.
+  1. **Fold into an existing ticket** — edit `tickets/<id>.md`, citing the finding, flip
+     `status` to `absorbed`.
+  2. **Spawn a new ticket** — new line in `TODO.md` + new `tickets/<id>.md` stub, wired into
+     `blocked-by`/`blocks`, flip `status` to `absorbed`.
+  3. **Dismiss** — record a one-line reason in the finding file itself, flip `status` to
+     `dismissed`.
 
-Do not proceed to Step 4 while any finding is still `status: new` — this is a hard gate, not a
-suggestion. If there are none, say so briefly and continue.
+- **Fork A (Linear)** — query Linear for open findings: issues in **Triage** status carrying
+  the **`dstack-finding`** label, scoped to this project's own Linear project (per its
+  `notes.md`/`README.md` Pass-3 record — don't default to another project's team/project ID).
+  Also surface any unscoped (no-project) `dstack-finding` issues in Triage — for those, "does
+  this belong to this project?" is the first triage question.
+  1. **Fold into an existing ticket** — leave a Linear **comment** on the target ticket citing
+     the finding (comment first, never silently overwrite the description — same discipline as
+     the re-spec rule in Step 4 below), then mark the finding issue **Duplicate** of that
+     ticket.
+  2. **Spawn a new ticket** — create a new linked Linear issue in the DAG (wired via
+     `blockedBy`/`blocks`, per Step 4 below), then move the finding out of Triage into
+     **Backlog**/**On-deck** with the project set.
+  3. **Dismiss** — move the finding to **Canceled**, with a one-line reason left as a comment.
+
+Do not proceed to Step 4 while any finding is still open (Fork B: `status: new`; Fork A:
+**Triage**) — this is a hard gate, not a suggestion. If there are none, say so briefly and
+continue.
 
 ## 4. Detect the ticketing fork, then read the DAG
 

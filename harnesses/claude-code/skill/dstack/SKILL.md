@@ -198,6 +198,14 @@ ones on that basis, but let the user pick either regardless.
   Before updating a ticket's description to match what shipped, add a **Linear comment**
   narrating original-spec → actual-shipped → why. That comment thread is what a later
   `/dstack-retro` walks — treat it as append-only history, not scratch space.
+- **Findings:** anything discovered outside the normal pick→plan→implement→re-spec loop (an ad
+  hoc review, an audit) gets filed as a Linear issue in **Triage** status carrying the
+  **`dstack-finding`** label (team-scoped; create it once per team the first time this fork is
+  used there), project set if known — Linear's native Triage status is the "unfinished business
+  until proven otherwise" holding place, playing the same role Fork B's `findings/` folder
+  plays. This gives it a forced path back into the DAG instead of sitting as an orphaned issue.
+  See `llm-coding-workflow.md`'s "Findings" section and `dstack-ticket.md` Step 3 for the
+  scan/triage mechanics.
 - Hand off: tell the user to run **`/dstack-ticket`** to pick the next eligible ticket
   (it confirms each choice, and scans for un-triaged findings first — see below), then enter
   plan mode directly for that ticket's Pass-4 micro-plan.
