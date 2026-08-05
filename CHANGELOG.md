@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.0 — 2026-08-05
+
+- **Fork A findings gate** — Fork A (Linear) projects now get the same structural
+  findings-triage reliability Fork B's `findings/` folder already had. A `dstack-finding` label
+  + Triage status marks an open finding in Linear; `dstack-ticket.md` Step 3 queries for it
+  instead of asking the user to remember.
+- **`dstack-update`** — installed into every target repo's root alongside the other vendored
+  files. Fetches the latest source fresh (a shallow temp clone, no dependency on any
+  pre-existing local checkout) and re-runs `install.sh` against itself, using the harness
+  recorded in `.dstack-version`. Closes the "how do I actually get updates" gap — previously
+  `install.sh` only worked from inside a local checkout of this repo.
+- **Issue #1 remedy** — the clobber-risk warning in README.md now names the actual answer
+  (repo-specific facts belong in `CLAUDE.md`/Step 1.7, not the vendored files), plus a new
+  "Migrating a repo that already had dstack" section (extract → install → backfill front
+  matter → split a fat `TODO.md`, with a token-frequency verification check for that last,
+  riskiest step).
+- **Stated fallbacks for unset prep answers** — `dstack-ticket.md` and the retro-suggestion
+  logic (`dstack-yolo.md` Step 8) now explicitly document what happens when a prep question is
+  unset in `notes.md` front matter (matching each question's Step 1.5 recommended default),
+  parity with the fallback `dstack-yolo.md` already documented for `risk_tolerance`.
+
 ## 0.1.0 — 2026-07-25
 
 Initial standalone release. Prior to this, dstack existed only as hand-copied files across

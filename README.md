@@ -89,17 +89,70 @@ produced one of them.
 ```
 
 This copies `spec/llm-coding-workflow.md` to your repo's root, the `claude-code` adapter's
-skill + commands into `.claude/skills/dstack` and `.claude/commands/`, and writes a
-`.dstack-version` file recording what was installed and from where.
+skill + commands into `.claude/skills/dstack` and `.claude/commands/`, a `dstack-update` script
+into the repo root (see Updating, below), and writes a `.dstack-version` file recording what was
+installed and from where.
 
 **What it deliberately does not do:** merge. It's a plain copy — re-running it overwrites
-whatever's currently in the target repo's `.claude/skills/dstack` and
-`.claude/commands/dstack-*.md`. If you've hand-edited an installed copy, `git diff` after
-re-running before committing. This is a known, accepted limitation, not an oversight — see
-"Common mistakes" below for the real drift story that motivated calling it out this plainly.
+whatever's currently in the target repo's `.claude/skills/dstack`, `.claude/commands/dstack-*.md`,
+and `dstack-update` itself. **Don't hand-edit any of those and expect it to survive an update —
+put repo-specific facts in `CLAUDE.md` instead** (see Step 1.7 in the walkthrough above), where
+install/update can't reach them and every session reads them anyway. That single move is what
+actually prevents the drift described in "Common mistakes" below — not a merge-aware installer.
 
 Only the `claude-code` harness adapter exists today. `harnesses/_template/README.md` describes
 what a new adapter needs to provide if you want to wire dstack into a different coding agent.
+
+## Updating
+
+Once installed, pull the latest dstack from inside the target repo itself — no need to clone
+this repo or remember where `install.sh` lives:
+
+```
+./dstack-update
+```
+
+This fetches current `master` fresh (a shallow temp clone, cleaned up after) and re-runs
+`install.sh` against your repo using the harness recorded in `.dstack-version`. Same plain-copy
+semantics as a manual install — `doc/dstack/<project>/` (all your generated project content) is
+never touched, and repo-specific facts living in `CLAUDE.md` are safe by construction. Review
+`git diff` before committing, same as any install.
+
+## Migrating a repo that already had dstack
+
+If a repo already has a hand-copied, pre-standalone dstack (this described `wake`, `vanedoc`,
+`cairn`, and `kairos` before this repo existed as the single source of truth) — or you've been
+hand-editing an installed copy — do this **in order**, not ad hoc, because later steps assume
+earlier ones already happened:
+
+1. **Extract repo-specific facts first, before installing anything.** Read every hand-edited
+   `dstack-*.md` / `SKILL.md` for facts that belong to *this repo*, not to dstack generally
+   (ports, verify commands, directory conventions — anything a plain install would silently
+   delete) and move them into `CLAUDE.md`. Do this **before** running install — once install
+   overwrites the file, whatever wasn't extracted is gone with no diff to recover it from.
+2. **Install.** `./install.sh --harness claude-code .` (there's no `dstack-update` yet on a
+   first install). Only after this can front matter honestly say
+   `repo_profile_location: claude-md` — that field means the extraction in step 1 actually
+   happened, not "I intend to get to this."
+3. **Backfill `notes.md` front matter** on any project whose doc predates the four prep
+   questions. Until it's filled in, every command falls back to that question's recommended
+   default rather than leaving it silently unset — see "What if a prep answer is missing?" in
+   the FAQ below.
+4. **Split a fat `TODO.md`** into the skeleton + `tickets/<id>.md` shape if the project predates
+   that convention (a `TODO.md` with full ticket bodies inline, rather than one line per
+   ticket). Do this last, after the doc structure around it is already current.
+
+**Verify the split didn't drop anything.** This is the step where content actually goes
+missing — a token-frequency comparison against the pre-split commit catches drops that reading
+the diff alone doesn't (a locally-rewritten caption that quietly loses information while
+*looking* like an improvement, for instance):
+
+```bash
+diff <(git show $SHA:doc/dstack/<project>/TODO.md | tr -cs '[:alnum:]' '\n' | sort | uniq -c) \
+     <(cat TODO.md tickets/*.md execution-log-archive.md | tr -cs '[:alnum:]' '\n' | sort | uniq -c)
+```
+
+Any line only on one side of that diff is a word whose count changed — worth checking by hand.
 
 ## Decision guide
 
@@ -145,14 +198,24 @@ pre-standalone version of dstack actually hit in production use:
 - **Don't treat a 🚧 marker as advisory.** It means a genuinely irreversible action is on the
   other side (migrations on live data, secrets, destructive ops, external infra) — no
   `risk_tolerance` setting is meant to bypass it, at any tier.
-- **Don't hand-edit an installed copy and then blindly re-run `install.sh`.** It's a plain
-  copy, not a merge (see Install, above) — it will clobber local changes silently.
+- **Don't hand-edit an installed copy (or `dstack-update`) and then blindly re-run
+  `install.sh`/`dstack-update`.** It's a plain copy, not a merge (see Install, above) — it will
+  clobber local changes silently. Repo-specific facts belong in `CLAUDE.md`, not the vendored
+  files — see Install and "Migrating a repo that already had dstack" above.
 
 ## FAQ
 
 **What if I want to change my answer to a prep question mid-project?** Edit the front matter
 in `notes.md` directly — nothing enforces it as read-only, it's just read once at project
 start and otherwise trusted. Downstream commands will pick up the new value on their next read.
+
+**What if a prep answer is missing from `notes.md`'s front matter** (e.g. a project that
+predates the four prep questions, or one where only some got backfilled)? Every command falls
+back to that question's stated recommended default from Step 1.5 rather than treating it as an
+error: `team_shape` → `solo`, `risk_tolerance` → `gate-every-ticket`, `resumability_cadence` →
+`same-day` (skip the recap), `retro_cadence` → `per-phase`. This is a deliberate default, not a
+bug — see "Migrating a repo that already had dstack" above for backfilling it properly instead
+of relying on the fallback indefinitely.
 
 **What happens if I never run `/dstack-retro`?** Nothing breaks — ticket-level re-spec and
 findings-absorption both work independently of it. You just lose the cross-project learning

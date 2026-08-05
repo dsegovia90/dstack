@@ -60,8 +60,9 @@ Parse from `TODO.md`:
 **If `resumability_cadence` is `days-apart` or `unpredictable-weeks`:** before doing anything
 else, give a short "since you were last here" recap — diff the Execution log and any
 `findings/` entries against the stored `last_session_at` timestamp in `notes.md` front matter
-(update that timestamp now, to the start of this session). Skip this for `same-day` — it's
-overhead a frequent session doesn't need.
+(update that timestamp now, to the start of this session). Skip this for `same-day`, or if the
+field is unset — it's overhead a frequent session doesn't need, and unset shouldn't be assumed
+stale.
 
 ## 2. Scan for un-triaged findings
 
@@ -91,7 +92,8 @@ Give the plan the ticket's *backward* context (its upstream deps — the current
 world) and *forward* context (its downstream dependents — the seams to leave). If
 `team_shape` is `small-team` or `larger-team`, write thicker forward-context into
 `tickets/<id>.md` than a solo project needs — whoever picks up the next dependent ticket is
-cold by default, not warm from having just built this one. Present the micro-plan and **wait
+cold by default, not warm from having just built this one. Unset → treat as `solo` (the
+recommended default from Step 1.5). Present the micro-plan and **wait
 for the human to approve, correct, or redirect.** Do not write code until approved.
 
 This is also the point where `tickets/<id>.md` — a stub until now — gets filled in with real
@@ -160,9 +162,9 @@ Pause and hand back to the human when:
   majority of what's left (don't keep nibbling tiny parallel scraps while the spine is stuck),
 - a **🚧 gate / risky step** is the only way forward,
 - **context rot** is detected,
-- **a phase boundary is reached and `retro_cadence` is `per-phase`** — suggest running
-  `/dstack-retro` before continuing (a suggestion, never automatic; the human can decline and
-  keep going).
+- **a phase boundary is reached and `retro_cadence` is `per-phase`** (or unset — `per-phase` is
+  the recommended default from Step 1.5) — suggest running `/dstack-retro` before continuing (a
+  suggestion, never automatic; the human can decline and keep going).
 
 When you pause, leave `TODO.md` in a clean, accurate state (statuses + Execution log current,
 archived if past the ~10-line cap) and give a tight status report: what shipped, what's
