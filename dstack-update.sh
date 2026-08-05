@@ -15,8 +15,22 @@
 
 set -euo pipefail
 
+# install.sh (below) re-copies this exact file back into place at
+# $TARGET_DIR/dstack-update. A running script must not be overwritten out
+# from under itself mid-execution -- bash reads a script incrementally from
+# disk, and once the file changes underneath it, further parsing breaks in
+# confusing ways. Re-exec from a throwaway temp copy first, so the on-disk
+# file this process is reading from is never the one install.sh rewrites.
+if [[ "${DSTACK_UPDATE_REEXEC:-}" != "1" ]]; then
+  TARGET_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  SELF_TMP="$(mktemp)"
+  cp "${BASH_SOURCE[0]}" "$SELF_TMP"
+  chmod +x "$SELF_TMP"
+  DSTACK_UPDATE_REEXEC=1 exec "$SELF_TMP" "$TARGET_DIR"
+fi
+
+TARGET_DIR="${1:?internal error: missing target dir}"
 REPO_URL="https://github.com/dsegovia90/dstack.git"
-TARGET_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ ! -f "$TARGET_DIR/.dstack-version" ]]; then
   echo "error: .dstack-version not found in $TARGET_DIR — is dstack installed here?" >&2
@@ -29,14 +43,14 @@ if [[ -z "$HARNESS" ]]; then
   exit 1
 fi
 
-TMP_DIR="$(mktemp -d)"
-trap 'rm -rf "$TMP_DIR"' EXIT
+CLONE_DIR="$(mktemp -d)"
+trap 'rm -rf "$CLONE_DIR" "$0"' EXIT
 
 echo "-> fetching latest dstack (master) from $REPO_URL..."
-git clone --quiet --depth 1 "$REPO_URL" "$TMP_DIR"
+git clone --quiet --depth 1 "$REPO_URL" "$CLONE_DIR"
 
 echo "-> reinstalling (harness: $HARNESS)..."
-"$TMP_DIR/install.sh" --harness "$HARNESS" "$TARGET_DIR"
+"$CLONE_DIR/install.sh" --harness "$HARNESS" "$TARGET_DIR"
 
 echo "-> done. doc/dstack/ (your project content) was never touched."
 echo "-> this was a plain copy, not a merge: run 'git diff' before committing."
