@@ -147,7 +147,7 @@ The fix mirrors the re-spec keystone's own logic — give freestanding discoveri
 
 This is the same forcing function that already makes ticket-scoped re-spec reliable, aimed one level up — at the things that never became tickets in the first place.
 
-The concrete mechanics of "a place the process treats as unfinished business" differ by ticketing backend: a file with `status:` frontmatter for a local backend, or a structured backend's own native fields (e.g. a status + a label) for one like Linear — see the relevant harness command for the specifics of either.
+Concretely, this artifact lives in the project itself (a file with `status:` frontmatter) regardless of which ticketing backend Pass 3 chose. This is deliberate, not an oversight: even a structured backend like Linear stays unopinionated about a dstack-internal process concern that isn't its own — it only ever sees the *outcome* of a triage decision (a new linked ticket, or a comment on an existing one), the same thing that would land there anyway.
 
 ---
 
