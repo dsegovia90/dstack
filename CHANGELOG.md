@@ -3,9 +3,11 @@
 ## 0.2.0 — 2026-08-05
 
 - **Fork A findings gate** — Fork A (Linear) projects now get the same structural
-  findings-triage reliability Fork B's `findings/` folder already had. A `dstack-finding` label
-  + Triage status marks an open finding in Linear; `dstack-ticket.md` Step 3 queries for it
-  instead of asking the user to remember.
+  findings-triage reliability Fork B's `findings/` folder already had. Findings use the exact
+  same in-repo `doc/dstack/<project>/findings/` convention for both forks; `dstack-ticket.md`
+  Step 3 scans it before letting a ticket be picked, instead of asking the user to remember.
+  Linear itself only ever sees the *outcome* of a triage decision (a new linked ticket, or a
+  comment on an existing one) — never dstack's own pre-ticket bookkeeping.
 - **`dstack-update`** — installed into every target repo's root alongside the other vendored
   files. Fetches the latest source fresh (a shallow temp clone, no dependency on any
   pre-existing local checkout) and re-runs `install.sh` against itself, using the harness
