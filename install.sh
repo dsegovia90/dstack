@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #
-# Install dstack into a target repo: copies the harness-agnostic spec plus one
-# harness adapter's skill/command files into place, and stamps a .dstack-version
-# file recording what was installed.
+# Install dstack into a target repo: copies the harness-agnostic spec, a
+# self-update script (dstack-update), and one harness adapter's skill/command
+# files into place, and stamps a .dstack-version file recording what was
+# installed.
 #
 # This is a plain copy, not a merge: re-running overwrites whatever's already
 # there. If the target repo has hand-edited its copy, review the diff after
@@ -71,7 +72,13 @@ echo "Installing dstack ($HARNESS adapter) into $TARGET"
 cp "$SCRIPT_DIR/spec/llm-coding-workflow.md" "$TARGET/llm-coding-workflow.md"
 echo "  spec/llm-coding-workflow.md -> llm-coding-workflow.md"
 
-# 2. Harness adapter files, whatever shape this harness needs.
+# 2. Self-update script -> target repo root, so a future update doesn't require
+#    cloning this repo or remembering where install.sh lives.
+cp "$SCRIPT_DIR/dstack-update.sh" "$TARGET/dstack-update"
+chmod +x "$TARGET/dstack-update"
+echo "  dstack-update.sh -> dstack-update"
+
+# 3. Harness adapter files, whatever shape this harness needs.
 case "$HARNESS" in
   claude-code)
     mkdir -p "$TARGET/.claude/skills" "$TARGET/.claude/commands"
@@ -89,7 +96,7 @@ case "$HARNESS" in
     ;;
 esac
 
-# 3. Version stamp, so a target repo (or a human) can tell what it's running
+# 4. Version stamp, so a target repo (or a human) can tell what it's running
 #    and whether it's stale against this source.
 VERSION="$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")"
 COMMIT="$(git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null || echo "uncommitted")"
@@ -105,3 +112,4 @@ echo "  .dstack-version written ($VERSION @ $COMMIT)"
 echo
 echo "Done. This was a plain copy, not a merge — review 'git diff' in the target repo"
 echo "before committing, especially if it already had a dstack copy in place."
+echo "Next time, run './dstack-update' from inside $TARGET to pull the latest."

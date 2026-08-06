@@ -118,10 +118,17 @@ Present your choice to the user with:
 - **Alternatives**: any other tickets on the eligible frontier (especially parallelizable
   branches). If `team_shape` is `small-team` or `larger-team`, frame these explicitly as things
   a teammate could pick up right now, not just a redirect option for the same person; for
-  `solo`, frame them as a plain redirect.
+  `solo`, frame them as a plain redirect. If `team_shape` is unset in `notes.md`'s front
+  matter, treat it as `solo` — the recommended default from Step 1.5 — rather than leaving the
+  framing ambiguous.
 - If this is a Fork B project, briefly note that `/dstack-yolo` is the autonomous
   plan-implement-loop version of this pick, in case the user wants to hand off to that
   instead of just confirming and stopping here.
+- **Retro suggestion**: if the confirmed ticket starts a new topological phase relative to the
+  last one worked, or the DAG is now empty (close-out), check `retro_cadence` (unset → treat as
+  `per-phase`, the recommended default from Step 1.5). If it calls for a checkpoint here,
+  suggest running `/dstack-retro` — a suggestion only, never automatic; the user can decline and
+  keep going.
 
 Then explicitly prompt the user to **confirm, correct the choice, or discuss** — and wait.
 Do not proceed to planning or implementation until they choose. Once confirmed, for Fork B,
