@@ -39,9 +39,13 @@ Once the project is settled, look inside it for an existing living doc (`notes.m
 and/or a `TODO.md`.
 - **If found:** name what you found and which pass it reached (scan its headers — does it
   have a Pass 2 / Pass 3 section? a ticket DAG? front matter with prep-question answers, see
-  Step 1.5?). Ask whether to **resume** that project (and at which pass) or **start something
-  new**. If resuming, load it into context, skip Step 1.5 (its answers are already in the
-  doc's front matter), and jump to the relevant step below.
+  Step 1.5? a `design_posture` answer, see Step 1.8?). Ask whether to **resume** that project
+  (and at which pass) or **start something new**. If resuming, load it into context, skip
+  Step 1.5 and Step 1.8 (their answers are already in the doc's front matter), and jump to the
+  relevant step below. Before treating the doc as settled, run the **open questions ledger's
+  required confirmation pass** (see Step 2) over any row still carrying a "Resolved" or
+  "Deferred" status from a prior session — a resumed session is exactly the kind of consuming
+  agent that doesn't get to trust an inherited label without checking it.
 - **If none:** proceed to Step 1.
 
 > Convention for this repo: each project gets its own folder `doc/dstack/<project>/` containing
@@ -78,6 +82,8 @@ risk_tolerance: gate-every-ticket | gate-first-and-risky | full-autonomy-except-
 resumability_cadence: same-day | days-apart | unpredictable-weeks
 retro_cadence: per-phase | close-out-only
 repo_profile_location: claude-md | dstack-file | mixed | none
+design_posture: none | utility | existing | new
+design_ground_rules_location: claude-md | design-md | dstack-file | n/a
 ---
 ```
 
@@ -116,8 +122,8 @@ If material is provided:
   the natural entry point"), but still confirm via `AskUserQuestion` rather than deciding
   silently.
 
-If nothing is provided, this step is a no-op — proceed to Step 1.7, then Step 2's Pass 1 as
-normal.
+If nothing is provided, this step is a no-op — proceed to Step 1.7, then Step 1.8, then Step
+2's Pass 1 as normal.
 
 ## Step 1.7 — Repo profile (existing codebases only)
 
@@ -151,6 +157,35 @@ one-time-ish artifact rather than a per-feature cost.
    scoped look turns up something that contradicts it — the same discipline as post-completion
    re-spec, aimed at the profile doc instead of a ticket.
 
+## Step 1.8 — Design ground rules (does this project have a visual surface?)
+
+Skip this step when resuming (the project's earlier answer persists in front matter as
+`design_posture`). Otherwise, ask once, via `AskUserQuestion` — see `llm-coding-workflow.md`'s
+"Design posture" section for the full reasoning:
+
+1. **No visual surface** — a CLI, an API, a background job. Record `design_posture: none` and
+   move on; this is a deliberate answer, not a skipped question.
+2. **Follows an existing design system** — a component library, brand guidelines, `DESIGN.md`,
+   or Figma file already governs this. Ask where it lives, record it, and point Pass 2 at it
+   rather than re-deriving it.
+3. **Deliberately utility-only** — an internal tool or admin surface where a custom design
+   system would be over-engineering. Record `design_posture: utility` as the explicit decision
+   it is, not an unexamined default.
+4. **Needs a design system established** — a customer-facing surface with no ground rules yet.
+   Recommended: establish one now, before Pass 2 goes far into component decisions — a system
+   authored after several features have already shipped inconsistent UI is expensive to
+   retrofit. If the `design-consultation` skill (or equivalent) is available in this harness,
+   offer to run it to produce a `DESIGN.md`; otherwise ask guiding questions directly covering
+   aesthetic direction, typography, color, layout, spacing, and motion, and write the answers
+   into `doc/dstack/<project>/design-ground-rules.md` (or `DESIGN.md` at repo root, same
+   `CLAUDE.md`-preference logic as Step 1.7 — anything durable benefits every future session).
+
+Record the answer and its location in front matter (`design_posture`,
+`design_ground_rules_location`) so this is asked once per project. This step does **not**
+replace Pass 2's per-feature visual decisions — once ground rules exist (or the
+utility/none decision is recorded), Pass 2's Component architecture still makes this feature's
+specific screens/components, grounded against whatever was established here.
+
 ## Step 2 — Establish the project + entry pass
 
 If starting fresh, ask for a short **project name** (kebab-case) → this becomes
@@ -159,11 +194,14 @@ provided material, put its recommendation to the user as the default option rath
 blind; otherwise ask directly:
 - **Pass 1 — Intake:** the *what*. Product intent, the problem, the MVP surface, success
   criteria. Output: `doc/dstack/<project>/notes.md` with the Pass-1 sections (plus the Step 1.5
-  front matter).
+  front matter). Anything that can't be settled yet goes into an **open questions ledger**
+  section — a table with columns id / question / raised-in-pass / status — not a loose bullet
+  list. See `llm-coding-workflow.md`'s "Open questions" section for the exact row format.
 - **Pass 2 — Architecture:** rewrite the *same* doc through a structural lens (data model,
   API, components, the *how*); ticket grooming falls out of this as a side effect. Ground it in
-  the durable repo profile (Step 1.7) plus a narrow, scoped look at the specific area this
-  feature touches — not a full-repo sweep.
+  the durable repo profile (Step 1.7), the design ground rules (Step 1.8) if the project has a
+  visual surface, plus a narrow, scoped look at the specific area this feature touches — not a
+  full-repo sweep.
 - **Pass 3 — Execution phasing + DAG:** add an execution-by-phases section; turn the groomed
   seams into tickets chained by dependency (`blocked-by` / `blocks`), with roots and
   topological phases called out. **Keep this ticket set to one-liners in the doc itself** —
@@ -174,6 +212,16 @@ living doc (never spawn parallel files for passes — it is one enriched artifac
 the shape and section names used in `llm-coding-workflow.md` and, if you want a concrete
 worked example rather than just the prose spec, `examples/reference-project/` in the dstack
 toolkit repo.
+
+**Before starting Pass 2 or Pass 3, run the ledger's required confirmation pass.** Walk every
+row the ledger inherits from an earlier pass: for each "Resolved" row, open the section its
+citation points to and state in one line what it actually says and why that answers the
+question — don't just trust the label. For each "Deferred" row, check whether its named target
+(this pass, or a specific ticket) has now arrived; if so, resolve it for real (with a citation)
+or explicitly re-defer with a new target — it doesn't get to silently roll forward unchanged. A
+row that fails this check reverts to open and gets re-raised in the current pass. Surface the
+outcome briefly to the user (a one-line status per row is enough) rather than doing this check
+silently — this is the forcing function, not a formality.
 
 When a pass surfaces a genuine design fork (data model, embedding strategy, sync vs async,
 etc.), put it to the user as an `AskUserQuestion` with a recommended option — don't decide
@@ -217,12 +265,12 @@ scan/triage mechanics.
 
 ### Fork B — Local TODO.md (lighter weight / solo / autonomous) *(default for this repo today)*
 - Generate **`doc/dstack/<project>/TODO.md`** as a pure **skeleton**: a status legend
-  (`[ ] [~] [x] [!]`, plus 🚧 human-gate), the DAG diagram, roots + topological phases, and
-  **one line per ticket** — `- [ ] **T3** Recipient mgmt — blocked-by: T1,T3 · blocks: T6,T7 ·
-  phase 3 · [detail](tickets/T3.md)` — plus only the last ~10 lines of the Execution log
-  (older entries roll into `execution-log-archive.md`). Match the shape used in
-  `examples/reference-project/TODO.md`. **If you're about to write more than that one line per
-  ticket into `TODO.md`, stop — that content belongs in `tickets/<id>.md`.**
+  (`[ ] [~] [x] [!]`, plus 🚧 human-gate and 🎨 design-touching), the DAG diagram, roots +
+  topological phases, and **one line per ticket** — `- [ ] **T3** Recipient mgmt — blocked-by:
+  T1,T3 · blocks: T6,T7 · phase 3 · [detail](tickets/T3.md)` — plus only the last ~10 lines of
+  the Execution log (older entries roll into `execution-log-archive.md`). Match the shape used
+  in `examples/reference-project/TODO.md`. **If you're about to write more than that one line
+  per ticket into `TODO.md`, stop — that content belongs in `tickets/<id>.md`.**
 - Create **`doc/dstack/<project>/tickets/<id>.md`** as an empty stub for every ticket in the
   DAG right now, so the skeleton's links never point at nothing — scope/files/acceptance get
   filled in only when a ticket is actually picked (`/dstack-ticket` or `/dstack-yolo`).
@@ -230,6 +278,10 @@ scan/triage mechanics.
   outside the normal pick→plan→implement→re-spec loop (an ad hoc review, an audit) gets
   written, so it has a forced path back into the DAG instead of sitting as an orphaned file.
 - Mark any risky or externally-dependent ticket (migrations on live data, secrets, infra) with 🚧.
+- Mark any ticket that touches user-visible UI with 🎨 when `design_posture` is `existing` or
+  `new` (Step 1.8) — unlike 🚧 this is **not** a hard gate, just a visible signal that the
+  ticket's Pass-4 micro-plan and close-out should check its work against the design ground
+  rules before the ticket is called done, so visual polish doesn't silently get skipped.
 - Hand off: tell the user to run **`/dstack-yolo`** to autonomously work the whole DAG
   (findings scan → plan-gate per `risk_tolerance` → implement → verify → re-spec → loop), or
   **`/dstack-ticket`** if they just want the next ticket picked and confirmed without
@@ -246,6 +298,9 @@ and `TODO.md` + `tickets/` + `findings/` if Fork B). Tell the user the exact nex
   bundled into the same commit/close-out step as the code — not left as a thing to remember;
 - **freestanding findings** (audits, reviews) get written to `findings/` and get scanned before
   every ticket pick — nothing should sit there un-triaged;
+- every row in the **open questions ledger** shows Resolved-with-citation, Deferred-with-target,
+  or Dropped-with-reason before close-out — if anything's still bare, run the required
+  confirmation pass now rather than leaving it for whoever picks the project back up;
 - the project doc is a durable substrate — bugs and fast-follows file into the same DAG after
   launch;
 - **`/dstack-retro`** is available any time (and will be suggested automatically at phase

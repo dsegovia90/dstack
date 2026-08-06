@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.3.0 — 2026-08-05
+
+- **Design posture (Step 1.8)** — dstack previously had no place to affirmatively decide how
+  much visual/UX rigor a project needs; it either got invented silently during Pass 2 or
+  ignored entirely. New grounding step, same shape as the repo profile (Step 1.7): record
+  whether the project has a visual surface at all, and if so whether an existing design
+  system governs it, it's deliberately utility-only, or one needs establishing now before
+  Pass 2 goes far. Persists as `design_posture` / `design_ground_rules_location` in `notes.md`
+  front matter. Tickets touching UI get a non-blocking 🎨 marker (distinct from 🚧 — it doesn't
+  pause autonomous execution) prompting a design-ground-rules check before close, surfaced in
+  `TODO.md`'s status legend and both `dstack-ticket`/`dstack-yolo`. See
+  `llm-coding-workflow.md`'s "Design posture" section for the full reasoning.
+- **Open questions ledger** — Pass 1's "open questions carried to Pass 2" was loose prose with
+  no way to distinguish a genuinely resolved question from an assumed one; the reference
+  project's own `D4` blocker (a scheduler decision that "was never resolved," discovered only
+  once it blocked a ticket) was exactly this failure mode. Open questions are now ledger rows
+  (id, question, raised-in-pass) that must resolve to exactly one status before their owning
+  pass finishes: **Resolved** (requires a citation to where the decision actually lives),
+  **Deferred** (requires a named pass or ticket, not "later"), or **Dropped** (requires a
+  reason). A **required confirmation pass** — run before starting Pass 2/Pass 3, and when a
+  session resumes an existing project — re-opens every inherited "Resolved" citation and checks
+  it actually answers the question, rather than trusting the label. Mirrors the findings-triage
+  forcing function, aimed at claims instead of code. See `llm-coding-workflow.md`'s "Open
+  questions" section; `examples/reference-project/notes.md` and `tickets/D4.md` now show the
+  full lifecycle (raised → deferred → reconfirmed twice → arrived at its named target).
+
 ## 0.2.0 — 2026-08-05
 
 - **Fork A findings gate** — Fork A (Linear) projects now get the same structural
