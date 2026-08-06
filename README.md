@@ -33,19 +33,28 @@ produced one of them.
    resumability_cadence: days-apart
    retro_cadence: per-phase
    ```
-2. **Get grounded, then check the repo profile:** before Pass 1 content begins, the skill asks
-   whether you already have something to start from — a rough idea, an existing spec, a
-   drafted plan — and assesses it against Pass 1/2/3 rather than re-deriving anything it
-   already answers. It also checks whether the host repo's durable facts (stack, conventions,
-   auth pattern, domain model, test framework) are already covered in `CLAUDE.md`, per
-   dimension, before running any research. See `examples/reference-project/notes.md`'s
+2. **Get grounded, then check the repo profile and design posture:** before Pass 1 content
+   begins, the skill asks whether you already have something to start from — a rough idea, an
+   existing spec, a drafted plan — and assesses it against Pass 1/2/3 rather than re-deriving
+   anything it already answers. It also checks whether the host repo's durable facts (stack,
+   conventions, auth pattern, domain model, test framework) are already covered in `CLAUDE.md`,
+   per dimension, before running any research. See `examples/reference-project/notes.md`'s
    "Grounding" section and `examples/reference-project/repo-profile.md` — in this example,
    `CLAUDE.md` covered three of five dimensions, so only the missing two were researched and
-   written down, not the whole set.
+   written down, not the whole set. It then asks the same question about **design ground
+   rules** (Step 1.8): does this project have a visual surface at all, and if so, does an
+   existing design system/component library govern it, is it deliberately utility-only, or
+   does one need to be established now before Pass 2 goes far? In the reference project,
+   `design_posture: existing` — the host app's `CLAUDE.md` already documents its component
+   library, so no new design work was needed, just a pointer to it.
 3. **Pass 1 — Intake:** guided questions fill in whatever Step 1.6 didn't already answer — the
-   "what": product intent, problem, MVP surface, success criteria. See
-   `examples/reference-project/notes.md`'s "Pass 1" section. Written into
-   `doc/dstack/<project>/notes.md`, the *same* file every later pass reuses.
+   "what": product intent, problem, MVP surface, success criteria. Anything that can't be
+   settled yet becomes a row in the **open questions ledger** — an id, a status (resolved with
+   a citation / deferred to a named pass or ticket / dropped with a reason), never a bare
+   bullet. See `examples/reference-project/notes.md`'s "Pass 1" section and its "Open questions
+   ledger" table. Written into `doc/dstack/<project>/notes.md`, the *same* file every later pass
+   reuses — the ledger is mutated in place as later passes confirm or resolve its rows, not
+   re-created.
 4. **Pass 2 — Architecture:** the same doc gets rewritten through a structural lens — data
    model, components, the "how" — grounded against the repo profile from step 2 plus a narrow,
    scoped look at just the area this feature touches, not a full-repo sweep. Ticket grooming
@@ -73,9 +82,13 @@ produced one of them.
    `findings/rate-limit-audit.md`, still `status: new` in this example on purpose: that's what
    the next ticket-pick's findings scan is designed to catch before it gets ignored.
 9. **Blockers get named, not hidden.** `tickets/D4.md` is `[!]` blocked — not because anything
-   broke, but because an architecture-time open question (which scheduler to use) never
-   actually got resolved before the ticket became eligible. The 🚧 marker means: don't push
-   through this autonomously at any risk-tolerance setting, surface it to a human instead.
+   broke, but because the ledger's `Q3` (which scheduler to use) was deferred to this exact
+   ticket back at Pass 1, reconfirmed still-open at every later ledger-confirmation pass, and
+   simply arrived at its named target still unresolved — a tracked outcome, not a surprise. The
+   🚧 marker means: don't push through this autonomously at any risk-tolerance setting, surface
+   it to a human instead. Compare `tickets/D2.md` and `tickets/D5.md`'s 🎨 marker — a much
+   lighter, non-blocking signal that a ticket touches UI and should be checked against the
+   design ground rules (Step 1.8) before it's closed.
 10. **Retro, on the cadence you asked for.** `retros/2026-06-14-retro.md` was triggered at a
    phase boundary (`retro_cadence: per-phase`) — it reads the *real* history (git log, ticket
    files, findings) rather than the plan, and ends with process-observations worth watching for
@@ -179,6 +192,19 @@ Any line only on one side of that diff is a word whose count changed — worth c
 - **Retro cadence:** "per-phase" if the project has more than a couple of phases; "close-out
   only" for something small enough that a mid-project checkpoint would just be close-out early.
 
+**What design posture should I pick (Step 1.8)?**
+- **Has a visual surface, and a system already governs it (brand guidelines, component
+  library, `DESIGN.md`) → "existing."** Point Pass 2 at it; don't re-derive it.
+- **Has a visual surface, but genuinely doesn't need custom design (internal tool, admin
+  surface) → "utility."** This is a legitimate, deliberate answer — say so explicitly rather
+  than let it default silently.
+- **Has (or will have) a customer-facing surface with no ground rules yet → "new."**
+  Recommended: establish them now, before Pass 2 goes far into component decisions — retrofitting
+  a design system after several features have shipped inconsistent UI costs more than settling
+  it up front.
+- **No visual surface at all (CLI, API, background job) → "none."** Also a deliberate, recorded
+  answer, not a skipped question.
+
 ## Common mistakes
 
 Drawn from real evidence, not hypotheticals — these are documented failure modes a prior,
@@ -195,6 +221,11 @@ pre-standalone version of dstack actually hit in production use:
 - **Don't skip the findings scan "just this once" before picking the next ticket.** It's a hard
   gate for a reason — the one time it gets skipped is the time something sits orphaned for
   weeks.
+- **Don't mark an open question "resolved" without a citation.** A resolution needs to point at
+  the specific section where the decision actually lives, and the next agent to touch the doc
+  is expected to open that section and check it, not trust the label — a "resolved" with no
+  citation (or one that turns out not to actually answer the question) is functionally an
+  unexamined assumption wearing a settled-looking label.
 - **Don't treat a 🚧 marker as advisory.** It means a genuinely irreversible action is on the
   other side (migrations on live data, secrets, destructive ops, external infra) — no
   `risk_tolerance` setting is meant to bypass it, at any tier.

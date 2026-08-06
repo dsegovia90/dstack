@@ -13,22 +13,24 @@ than one line per ticket here, it belongs in the ticket file instead.
 - `[!]` blocked / needs attention
 - 🚧 human-gate — pause for explicit sign-off before/after this ticket, don't autonomously
   barrel through it
+- 🎨 design-touching — check against the project's design ground rules (`notes.md` Step 1.8)
+  before closing; not a hard gate, just a visible reminder
 
 ## Dependency graph
 
 ```
 D1 (schema)
-  ├──> D2 (preferences UI)
+  ├──> D2 (preferences UI) 🎨
   └──> D3 (digest content builder) ──┬──> D4 (scheduled send job) 🚧
-                                      └──> D5 (unsubscribe link, also needs D2)
+                                      └──> D5 (unsubscribe link, also needs D2) 🎨
 ```
 
 **Root:** D1
 
 **Phases:**
 1. D1
-2. D2, D3 (parallelizable)
-3. D4 🚧, D5 (parallelizable)
+2. D2 🎨, D3 (parallelizable)
+3. D4 🚧, D5 🎨 (parallelizable)
 
 ---
 
@@ -36,12 +38,12 @@ D1 (schema)
 
 - [x] **D1** Schema migration — blocked-by: none (root) · blocks: D2, D3 · phase 1 ·
   [detail](tickets/D1.md)
-- [x] **D2** Preferences UI — blocked-by: D1 · blocks: D5 · phase 2 · [detail](tickets/D2.md)
+- [x] **D2** Preferences UI 🎨 — blocked-by: D1 · blocks: D5 · phase 2 · [detail](tickets/D2.md)
 - [x] **D3** Digest content builder — blocked-by: D1 · blocks: D4, D5 · phase 2 ·
   [detail](tickets/D3.md)
 - [!] **D4** Scheduled send job 🚧 — blocked-by: D3 · blocks: none · phase 3 ·
   [detail](tickets/D4.md)
-- [ ] **D5** Unsubscribe/pause link — blocked-by: D2, D3 · blocks: none · phase 3 ·
+- [ ] **D5** Unsubscribe/pause link 🎨 — blocked-by: D2, D3 · blocks: none · phase 3 ·
   [detail](tickets/D5.md)
 
 ---

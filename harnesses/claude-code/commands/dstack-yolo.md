@@ -49,7 +49,8 @@ architectural context and the prep-question front matter). If exactly one projec
 
 Parse from `TODO.md`:
 - the **ticket set** with statuses (`[ ]` open · `[~]` in-progress · `[x]` done · `[!]`
-  blocked/paused · 🚧 human-gate) — one line per ticket, pointing at `tickets/<id>.md` for depth,
+  blocked/paused · 🚧 human-gate · 🎨 design-touching) — one line per ticket, pointing at
+  `tickets/<id>.md` for depth,
 - the **dependency edges** (`Blocked-by` / `Blocks`), **roots**, and **topological phases**,
 - the last ~10 lines of the **Execution log** inline; the full history lives in
   `execution-log-archive.md` if more context is needed.
@@ -111,6 +112,12 @@ After approval (or directly, at `full-autonomy-except-gates`), implement in warm
 Report verification honestly; failed verification means the ticket is **not** done.
 
 ## 6. Keystone — re-spec to reality, then check off
+
+If this ticket is marked 🎨, check the work against the project's design ground rules
+(`design_posture` / `design_ground_rules_location` in `notes.md` front matter — see Step 1.8 in
+`SKILL.md`) before calling it done. This is not a 🚧-style hard gate — it doesn't pause
+autonomous execution — but a ticket that visibly drifts from established ground rules should be
+noted in its re-spec, the same as any other divergence, not silently shipped.
 
 If the implementation diverged from the plan, **rewrite `tickets/<id>.md`** so it describes
 what was actually built (not the original promise) — this is the atomic bundling that makes

@@ -24,10 +24,12 @@ It is **not** three (or four) separate files. Passes 1–3 converge on one enric
 ## The four passes
 
 ### Pass 1 — Intake (the "what")
-Work can arrive three ways: a **rough idea** with nothing written down yet, an **existing spec** someone already drafted, or a **technical plan** drafted elsewhere. This is the product/requirements layer — it says *what* we're building, not *how*. The job at this pass is to **assess what's already been answered and only elicit the rest**: a settled spec shouldn't get re-derived from scratch just because it wasn't authored inside this process; a blank idea gets the full set of guiding questions. Either way, the output is the same — `notes.md`'s Pass-1 sections, filled in wherever the input already answers them and elicited wherever it doesn't.
+Work can arrive three ways: a **rough idea** with nothing written down yet, an **existing spec** someone already drafted, or a **technical plan** drafted elsewhere. This is the product/requirements layer — it says *what* we're building, not *how*. The job at this pass is to **assess what's already been answered and only elicit the rest**: a settled spec shouldn't get re-derived from scratch just because it wasn't authored inside this process; a blank idea gets the full set of guiding questions. Either way, the output is the same — `notes.md`'s Pass-1 sections, filled in wherever the input already answers them and elicited wherever it doesn't. Whatever this pass can't settle yet goes into the **open questions ledger** (see below), not a loose paragraph.
 
 ### Pass 2 — Architectural rewrite (the structural "how")
-I **rewrite the design doc through an architectural lens.** This is the step I fully own — translating product intent into the *shape* of a solution.
+I **rewrite the design doc through an architectural lens.** This is the step I fully own — translating product intent into the *shape* of a solution. It's grounded in two durable layers established up front — the repo profile and, when the project has a visual surface, the design posture (see Grounding and Design posture, below) — plus a narrow, scoped look at just the area this feature touches.
+
+Before adding anything new, this pass runs the **required confirmation pass** over every row the ledger inherited from Pass 1: each claimed "Resolved" gets its citation checked, not trusted on label alone (see Open questions, below).
 
 Ticket grooming happens **as a side effect of this pass**, not as a separate chore, because re-architecting is exactly what reveals the real boundaries. During this pass I add descriptions to rough tickets, create new tickets the architecture implies, and rename/re-scope tickets so they map to genuine seams. Output: the same doc, now architectural, with a ticket set that reflects the true structure of the work.
 
@@ -109,6 +111,22 @@ Getting this split wrong in either direction reproduces a known failure mode: to
 
 ---
 
+## Design posture: the same grounding discipline, applied to visual/UX decisions
+
+Left unhandled, design decisions fall into the same trap as ungrounded architecture, just less visibly: nobody explicitly decided *how much* design rigor this project needs, so Pass 2 either invents visual decisions with nothing to check them against (drift, inconsistency across features, a different agent making different aesthetic calls each time) or drags a full design-system exercise into a project that never needed one. Neither is a deliberate choice — both are what happens when the question never gets asked.
+
+The fix is to ask it explicitly, once, and split by the same volatility logic as the repo profile:
+
+- **No visual surface at all** (a CLI, an API, a background job) is a legitimate answer — record it as a decision, not a silent skip, so a later reader knows design was considered and correctly ruled out rather than forgotten.
+- **Durable ground rules** — an established design system, brand guidelines, component library, or a project's `DESIGN.md` (typography, color, spacing, motion, voice) — are established **once per project**, the same cadence as the repo profile. If they already exist, Pass 2 points to them; it doesn't re-derive them.
+- **If a customer-facing surface has no ground rules yet**, establishing them deliberately, before Pass 2 goes far into component decisions, is worth the up-front cost — a design system authored after several features have already shipped inconsistent UI is expensive to retrofit, for the same reason an unrecorded repo profile is expensive to reverse-engineer later.
+- **A project can also deliberately choose not to invest here** — an internal tool or admin surface where custom visual design would be over-engineering. That's a legitimate posture too, as long as it's the *stated* posture and not just an unexamined default.
+- **Feature-specific visual decisions** (this feature's actual screens/components) stay scoped to Pass 2's Component architecture, grounded against whatever ground rules were established — same shape as the narrow, per-feature repo-profile look.
+
+The output of this isn't prose buried in Pass 1 — it's a **recorded posture** (does this project have a visual surface, and if so what governs it) that Pass 2 can point back to instead of re-deciding per feature, and that later tickets touching UI can check their work against before calling themselves done.
+
+---
+
 ## The context each ticket gets at execution time
 
 - **Backward (state of the world):** the model reads **both** the **ticket** (intent, kept truthful — see Keystone) and the **actual code** on disk (reality), and reconciles them.
@@ -148,6 +166,25 @@ The fix mirrors the re-spec keystone's own logic — give freestanding discoveri
 This is the same forcing function that already makes ticket-scoped re-spec reliable, aimed one level up — at the things that never became tickets in the first place.
 
 Concretely, this artifact lives in the project itself (a file with `status:` frontmatter) regardless of which ticketing backend Pass 3 chose. This is deliberate, not an oversight: even a structured backend like Linear stays unopinionated about a dstack-internal process concern that isn't its own — it only ever sees the *outcome* of a triage decision (a new linked ticket, or a comment on an existing one), the same thing that would land there anyway.
+
+---
+
+## Open questions: a ledger, not a paragraph
+
+Pass 1 (and, less often, Pass 2) surfaces things that can't be answered yet — a genuine fork the next pass needs more context to resolve. Left as loose prose ("open questions carried to Pass 2"), these degenerate fast: a later pass claims a question "resolved" in a clause, with nothing pointing at where the actual decision was made, and there's no way to tell a real resolution from an assumed one without re-deriving the whole judgment call by hand. This is exactly the same failure shape as an untracked finding — a genuine discovery with no forced path back into the graph — just aimed at *questions* instead of *discoveries*.
+
+The fix mirrors the findings mechanism: **every open question is a row in a ledger, not a sentence in a paragraph**, and every row must carry one of exactly three statuses before the pass that owns it is considered done.
+
+1. **Raise it as a ledger row**, not a bare bullet: an id (`Q1`, `Q2`, …), the question, and the pass it was raised in.
+2. **Every row resolves to exactly one status before its owning pass finishes:**
+   - **Resolved** — requires a **citation**: the specific section/heading in the *same* doc where the actual decision lives (e.g. `→ Pass 2 § Component architecture, digest/send-job.ts`). A row marked resolved with no citation, or a citation that doesn't actually address the question, is not resolved — it's an assumption wearing a resolved label.
+   - **Deferred** — requires a **named target**: the specific pass or ticket it's deferred to (`→ Pass 3`, `→ ticket D4`), not "later" or "TBD." An un-named deferral is functionally identical to a dropped question nobody admitted dropping.
+   - **Dropped** — requires a one-line **reason** (scope cut, superseded, no longer relevant).
+3. **A pass isn't done while any inherited row is unaccounted for.** Carrying a question forward unchanged, or silently omitting it from the next pass's ledger, is not a legal outcome — same discipline as an untriaged finding.
+
+**The required confirmation pass.** Whichever agent picks up the doc next — the same session moving to the next pass, or a fresh session resuming a project — does not get to trust an inherited "Resolved" label at face value. Before treating the ledger as settled, it must **walk every Resolved row, open the cited section, and state in one line what that section actually says and why it answers the question** — not just that the citation exists. A citation that turns out to point at the wrong section, or at prose that doesn't actually settle the question, gets its status reverted to open and re-raised in the current pass; the label alone was never evidence. This confirmation is what makes a ticket like `D4` in the reference project — blocked because Pass 2 left a scheduler decision open and it surfaced as a surprise at execution time — the exception rather than the norm: a genuinely-deferred row still shows up as a live blocker when its named target arrives, but it arrives *expected*, not discovered.
+
+This is the same discipline as post-completion re-spec, aimed at claims instead of code: a resolution earns trust by being checked against the actual text, not by being asserted.
 
 ---
 
@@ -259,3 +296,5 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 13. **Retrospect on purpose.** Reading the accumulated history as a set — not just each entry individually — is what turns local honesty into process improvement over time.
 14. **Ask what shapes the project before starting.** Team shape, risk tolerance, resumability cadence, and retro cadence aren't bureaucracy — each one changes a concrete downstream default that would otherwise be guessed at, differently, every time.
 15. **Split grounding by volatility.** Durable repo facts prefer `CLAUDE.md` and get patched, not regenerated; feature-specific facts stay scoped and fresh every single time.
+16. **Design posture is a decision, not a default.** "No visual surface," "deliberately utility-only," "follow the existing system," and "establish one now" are all legitimate answers — the failure mode is never picking one and letting Pass 2 invent it silently.
+17. **Open questions are a ledger with required evidence, not a paragraph of good intentions.** Resolved needs a citation, deferred needs a named target, dropped needs a reason — and the next agent to touch the doc re-checks the citation before trusting the label.

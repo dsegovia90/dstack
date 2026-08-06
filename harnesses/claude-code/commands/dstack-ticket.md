@@ -68,8 +68,8 @@ Inside the project folder, check what's actually there:
 - **`TODO.md` present → Fork B (local).** This is the default for solo/lighter-weight
   projects in this repo. Read `TODO.md` directly:
   - The **Tickets** section — one line per ticket (skeleton only; full detail lives in
-    `tickets/<id>.md`), checkbox (`[ ]`/`[~]`/`[x]`/`[!]`, plus 🚧 for human-gated infra steps),
-    with `blocked-by` / `blocks`.
+    `tickets/<id>.md`), checkbox (`[ ]`/`[~]`/`[x]`/`[!]`, plus 🚧 for human-gated infra steps
+    and 🎨 for tickets that touch user-visible UI), with `blocked-by` / `blocks`.
   - The **DAG** section — the diagram, declared **roots**, and **Phases** table.
   - Checkboxes are a **hint, not ground truth** — status drifts. Before treating an upstream
     ticket as done, sanity-check against the **code on disk** (does the file/dependency/route
@@ -113,7 +113,9 @@ name the blocker.
 Present your choice to the user with:
 
 - **The ticket**: id (`KAI-####` for Fork A, or the local id like `V1` for Fork B), title,
-  and its phase. Call out a 🚧 human-gate if present.
+  and its phase. Call out a 🚧 human-gate if present, and a 🎨 marker if present — note that its
+  micro-plan and close-out should check the work against the project's design ground rules
+  (Step 1.8 in `SKILL.md`) before it's called done.
 - **Why it's next**: which upstream deps are satisfied, what it unblocks downstream.
 - **Alternatives**: any other tickets on the eligible frontier (especially parallelizable
   branches). If `team_shape` is `small-team` or `larger-team`, frame these explicitly as things
