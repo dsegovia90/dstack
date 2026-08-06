@@ -189,6 +189,14 @@ step doing the bundling itself, per Fork B below) — which works, but isn't aut
 team's review process makes it.* Recommend Fork A for team-shaped projects and Fork B for solo
 ones on that basis, but let the user pick either regardless.
 
+**Regardless of which fork gets picked**, create an empty **`doc/dstack/<project>/findings/`**
+folder now — findings live **in-repo for both forks**, deliberately never in the ticketing
+backend itself. A structured backend like Linear stays unopinionated about a dstack-internal
+process concern that isn't its own: it only ever sees the *outcome* of a triage decision (a new
+linked ticket, or a re-spec comment on an existing one), the same thing that would land there
+anyway. See `llm-coding-workflow.md`'s "Findings" section and `dstack-ticket.md` Step 3 for the
+scan/triage mechanics.
+
 ### Fork A — Linear (structured / team / large, complex projects)
 - The DAG lives in Linear (ticket↔ticket links); the doc holds the skeleton **only** — link +
   one-line title per ticket, nothing more. Linear is the sole source of ticket detail; don't
@@ -198,6 +206,8 @@ ones on that basis, but let the user pick either regardless.
   Before updating a ticket's description to match what shipped, add a **Linear comment**
   narrating original-spec → actual-shipped → why. That comment thread is what a later
   `/dstack-retro` walks — treat it as append-only history, not scratch space.
+- **Findings** stay in-repo (see the shared `findings/` note above), not in Linear — Linear
+  only ever sees the *outcome* of a triage decision, never dstack's own pre-ticket bookkeeping.
 - Hand off: tell the user to run **`/dstack-ticket`** to pick the next eligible ticket
   (it confirms each choice, and scans for un-triaged findings first — see below), then enter
   plan mode directly for that ticket's Pass-4 micro-plan.
@@ -216,10 +226,9 @@ ones on that basis, but let the user pick either regardless.
 - Create **`doc/dstack/<project>/tickets/<id>.md`** as an empty stub for every ticket in the
   DAG right now, so the skeleton's links never point at nothing — scope/files/acceptance get
   filled in only when a ticket is actually picked (`/dstack-ticket` or `/dstack-yolo`).
-- Create an empty **`doc/dstack/<project>/findings/`** folder — this is where anything
-  discovered outside the normal pick→plan→implement→re-spec loop (an ad hoc review, an audit)
-  gets written, so it has a forced path back into the DAG instead of sitting as an orphaned
-  file. See `llm-coding-workflow.md`'s "Findings" section.
+- `findings/` already exists (see the shared note above) — this is where anything discovered
+  outside the normal pick→plan→implement→re-spec loop (an ad hoc review, an audit) gets
+  written, so it has a forced path back into the DAG instead of sitting as an orphaned file.
 - Mark any risky or externally-dependent ticket (migrations on live data, secrets, infra) with 🚧.
 - Hand off: tell the user to run **`/dstack-yolo`** to autonomously work the whole DAG
   (findings scan → plan-gate per `risk_tolerance` → implement → verify → re-spec → loop), or

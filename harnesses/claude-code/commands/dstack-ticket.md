@@ -37,20 +37,26 @@ List the projects under **`doc/dstack/`** (each subdirectory is a project).
 
 ## 3. Scan for un-triaged findings — before anything else
 
-Check the project's `findings/` folder (Fork B) — or, for Fork A, ask whether any freestanding
-review/audit output has been produced recently that hasn't been folded into Linear. Any finding
-with `status: new` (or untriaged Fork A discovery) must be surfaced and triaged **before**
-computing the eligible frontier below. Present each one and get the user to choose one of the
-three legal outcomes:
+Check the project's **`doc/dstack/<project>/findings/`** folder for anything with
+`status: new` — the same convention for **both** forks. Findings stay in-repo even for Fork A:
+the ticketing backend only ever sees the *outcome* of a triage decision (a new linked ticket, or
+a comment on an existing one), never dstack's own pre-ticket bookkeeping — Linear stays
+unopinionated about a process concern that isn't its own.
 
-1. **Fold into an existing ticket** — re-spec that ticket's scope now (Fork B: edit
-   `tickets/<id>.md`; Fork A: Linear comment + description update per Step 4 below), citing the
-   finding, and flip its `status` to `absorbed`.
+Any finding with `status: new` must be surfaced and triaged **before** computing the eligible
+frontier below. Present each one and get the user to choose one of the three legal outcomes:
+
+1. **Fold into an existing ticket** — cite the finding and re-spec that ticket's scope now
+   (Fork B: edit `tickets/<id>.md`; Fork A: leave a Linear **comment** on the target ticket
+   citing the finding — comment first, never silently overwrite the description, same
+   discipline as the re-spec rule in Step 4 below), then flip the finding file's `status` to
+   `absorbed`.
 2. **Spawn a new ticket** — add it to the DAG (Fork B: new line in `TODO.md` + new
-   `tickets/<id>.md` stub, wired into `blocked-by`/`blocks`; Fork A: new linked Linear issue),
-   flip `status` to `absorbed`.
+   `tickets/<id>.md` stub, wired into `blocked-by`/`blocks`; Fork A: new linked Linear issue,
+   wired via `blockedBy`/`blocks` per Step 4 below), then flip the finding file's `status` to
+   `absorbed`.
 3. **Dismiss** — record a one-line reason in the finding file itself, flip `status` to
-   `dismissed`.
+   `dismissed`. No ticketing-backend touch needed for this outcome.
 
 Do not proceed to Step 4 while any finding is still `status: new` — this is a hard gate, not a
 suggestion. If there are none, say so briefly and continue.
