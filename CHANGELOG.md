@@ -5,6 +5,14 @@
 _See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
 status of each item. Entries land here one PR at a time as each ships._
 
+- **Command arguments** — `/dstack-ticket`, `/dstack-yolo`, `/dstack-retro`, and `/dstack`
+  all take an optional target: a project name, a local ticket id, or (for `/dstack-ticket`)
+  a Linear identifier. A project argument skips the "which project" question; a ticket
+  argument makes that ticket the *proposed* pick. Nothing that's a gate moves: the findings
+  scan still runs first, and the proposed ticket still has to be on the eligible frontier
+  with every dependency verified against the code on disk — otherwise the command says which
+  dependency is unmet and falls back to its normal pick. See `dstack-ticket.md` Step 0.
+
 ## 0.3.0 — 2026-08-05
 
 - **Design posture (Step 1.8)** — dstack previously had no place to affirmatively decide how
