@@ -27,6 +27,6 @@ A new adapter needs to provide, in whatever native form the target harness uses:
   ticketing-fork decision.
 
 None of the conventions themselves (`doc/dstack/<project>/notes.md` + `TODO.md` + `tickets/` +
-`findings/` + `retros/`, the front-matter shape, the commit-trailer convention) are
-harness-specific — a new adapter should point at the same files and conventions the
+`findings/` + `retros/`, the front-matter shape, the commit-trailer convention, the fixed
+Mermaid shape of the DAG diagram) are harness-specific — a new adapter should point at the same files and conventions the
 `claude-code/` adapter uses, just invoked through different mechanics.

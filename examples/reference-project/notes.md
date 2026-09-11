@@ -7,6 +7,7 @@ retro_cadence: per-phase
 repo_profile_location: mixed
 design_posture: existing
 design_ground_rules_location: claude-md
+diagrams: mermaid
 last_session_at: 2026-06-14T09:00:00-06:00
 ---
 
@@ -29,6 +30,10 @@ longer and more specific than this, but the structure and section names are the 
   two dimensions live in [`repo-profile.md`](repo-profile.md) in this folder instead
   (`repo_profile_location: mixed`, front matter above). Pass 2's Data model and Component
   architecture below were grounded against both sources.
+- **Diagrams (prep question 5):** `diagrams: mermaid` (front matter above). Pass 2's data
+  model below is two tables with one foreign key — a paragraph, not a picture, so no
+  `erDiagram` was drawn; the rule is "draw when the picture is shorter than the paragraph."
+  The Pass 3 DAG is drawn regardless, in the fixed Mermaid shape every project uses.
 - **Step 1.8 — design ground rules:** the host app already has an established component library
   and styling conventions, documented in `CLAUDE.md`'s "Conventions" section — `design_posture:
   existing`, `design_ground_rules_location: claude-md` (front matter above). No new design
@@ -146,11 +151,32 @@ Ticket IDs: `D1`–`D5`.
 
 ### Dependency graph
 
-```
-D1 (schema)
-  ├──> D2 (preferences UI) 🎨
-  └──> D3 (digest content builder) ──┬──> D4 (scheduled send job) 🚧
-                                      └──> D5 (unsubscribe link, also needs D2) 🎨
+_Conventional shape — see `llm-coding-workflow.md`'s "Diagrams" section. Derived from the
+ticket one-liners in `TODO.md`; node classes are re-rendered in the same commit as every
+status change, so this reflects the state as of `last_session_at`._
+
+```mermaid
+flowchart TD
+  classDef open fill:#fff,stroke:#999
+  classDef inprogress fill:#fff8dc,stroke:#d4a017
+  classDef done fill:#e6f4ea,stroke:#2e7d32
+  classDef blocked fill:#fdecea,stroke:#c62828
+  subgraph P1 [Phase 1]
+    D1["D1 · Schema migration"]:::done
+  end
+  subgraph P2 [Phase 2]
+    D2["D2 · Preferences UI 🎨"]:::done
+    D3["D3 · Digest content builder"]:::done
+  end
+  subgraph P3 [Phase 3]
+    D4["D4 · Scheduled send job 🚧"]:::blocked
+    D5["D5 · Unsubscribe/pause link 🎨"]:::open
+  end
+  D1 --> D2
+  D1 --> D3
+  D3 --> D4
+  D2 --> D5
+  D3 --> D5
 ```
 
 **Root:** `D1`.

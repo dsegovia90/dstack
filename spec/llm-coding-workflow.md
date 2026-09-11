@@ -44,7 +44,9 @@ The ticket-to-ticket edges form a **dependency graph (DAG)**, and that single st
 - **Roots** (tickets with no unmet dependencies) = where we can **start**.
 - **Independent branches** (no shared edges) = what we can **parallelize**.
 
-The phased order is essentially a topological read of that graph.
+The phased order is essentially a topological read of that graph. The graph is also drawn —
+always, in one fixed shape, so that every project's DAG reads the same and can be regenerated
+mechanically from the ticket lines (see Diagrams, below).
 
 ### Pass 4 — Micro-plan per ticket ("plan mode")
 Inside each ticket node, before any code: a literal **plan mode** session with the model to settle the technical decisions. I sign off before it implements. This micro-plan carries **three jobs at once**:
@@ -94,6 +96,56 @@ The fix is structural, not a discipline to remember: **three tiers, not two.**
 3. **Per-ticket detail** — scope, files, acceptance, the Pass-4 micro-plan, and the re-spec narrative once it exists. Created as a stub the moment a ticket enters the DAG (so pointers never dangle), filled in only when the ticket is actually picked — depth exists exactly where work has reached, not everywhere at once.
 
 Where a ticketing system with its own navigable detail view already exists, it *is* tier 2+3 combined — don't also duplicate ticket scope/acceptance into the doc. That's pure redundancy with no sync guarantee: two copies of the same fact, one of which will eventually go stale. The doc references a ticket by id/link and a one-line title, full stop; the ticketing system is the sole source of ticket detail.
+
+---
+
+## Diagrams: a readability tool, plus one rigid convention for the DAG
+
+Two separate things, easy to conflate because they use the same syntax.
+
+### (A) Diagrams as a tool — chosen once, used where a picture beats a paragraph
+
+Some of what Pass 2 decides is *shaped* — a data model with several related tables, a request
+path with a few hops, a component boundary, a lifecycle with named states. Prose describes
+these; a diagram *shows* them, and a later reader (or a later session) takes it in at a
+glance instead of reconstructing the shape from sentences. Whether to draw, and in what
+notation, is a per-project choice made once (see Prep questions), not re-decided per section.
+The rule for *when*: **draw when the picture is shorter than the paragraph it replaces.** A
+two-table schema is a paragraph; a five-table schema with three foreign keys is a diagram.
+
+| You are planning… | Draw | Mermaid type |
+|---|---|---|
+| a data model with three or more related tables | an entity diagram | `erDiagram` |
+| an API or request path with two or more hops | a sequence | `sequenceDiagram` |
+| component boundaries — who calls whom | a component map | `flowchart LR` |
+| a lifecycle with named states and transitions | a state machine | `stateDiagram-v2` |
+
+A diagram is a *rendering* of decisions the prose already made, not a place decisions live.
+If the picture and the prose disagree, the prose wins and the picture gets redrawn — same
+rule as the skeleton vs. the ticket files. Diagrams sit inline in the living doc, under the
+section they illustrate.
+
+### (B) The DAG — always drawn, always the same shape
+
+The dependency graph from Pass 3 is *always* drawn, regardless of the per-project diagrams
+answer, and always in one rigid form — because it's not illustration, it's a live status
+board that gets re-rendered every time a ticket changes state. One shape means a later agent
+can regenerate it mechanically from the ticket one-liners without a judgment call, and a
+human can read any project's DAG the same way. The conventions:
+
+1. `flowchart TD`. One `subgraph` per topological phase, in phase order.
+2. Node id = the ticket id. Label = `id · title`, plus any markers (🚧, 🎨) the ticket carries.
+3. One edge per `blocked-by` entry, drawn upstream → downstream. No other edges, no notes.
+4. Four fixed status classes — `open`, `inprogress`, `done`, `blocked` — declared verbatim at
+   the top of every DAG, never restyled per project. A node's class *is* its checkbox state.
+5. Roots are the nodes with no incoming edge; the skeleton still carries a one-line
+   `**Root:**` for readers in a terminal, where the diagram doesn't render.
+
+**The ticket one-liners (`blocked-by` / `blocks` / checkbox) remain the source of truth; the
+diagram is derived from them.** It is re-rendered — a node's class flipped, a node added when
+the graph grows (see Recovery) — **in the same commit** as the status change that caused it,
+never as a follow-up. A DAG diagram that disagrees with the ticket lines is stale, and the
+ticket lines win.
 
 ---
 
@@ -264,6 +316,7 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 - **Risk tolerance for autonomous execution — how much should the agent do without pausing for sign-off?** Ranges from gating every ticket before any code is written (the safe default) to full autonomy bounded only by hard gates on genuinely irreversible actions (migrations against live data, secrets/credential changes, destructive operations, external infra). Hard gates are never something a risk-tolerance setting relaxes — they exist because some actions are categorically different from "got the ticket wrong," not because the default is overcautious.
 - **Resumability cadence — same day, days apart, or unpredictable/weeks between sessions?** A return after weeks needs real "since you were last here" scaffolding — a recap of what changed since the last touch — that a same-day return doesn't, and shouldn't pay the overhead of. Sized wrong in either direction, this either buries a frequent user in recap noise or leaves an infrequent one to reconstruct context from scratch every time.
 - **Retro cadence — checkpoints at natural phase boundaries, or only at project close-out?** Sets when the retrospective pass above actually fires as a suggestion.
+- **Diagrams — Mermaid, ASCII, or prose only?** Sets the notation Pass 2 uses when a section is shaped enough to earn a picture (see Diagrams, above). Mermaid renders in GitHub, Linear, and most editors and is what the DAG uses regardless; ASCII is for docs that are mostly read in a terminal; "none" means every section is prose. This choice does *not* affect the DAG, which is always drawn, always in Mermaid, always in the same shape.
 
 ---
 
@@ -298,3 +351,4 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 15. **Split grounding by volatility.** Durable repo facts prefer `CLAUDE.md` and get patched, not regenerated; feature-specific facts stay scoped and fresh every single time.
 16. **Design posture is a decision, not a default.** "No visual surface," "deliberately utility-only," "follow the existing system," and "establish one now" are all legitimate answers — the failure mode is never picking one and letting Pass 2 invent it silently.
 17. **Open questions are a ledger with required evidence, not a paragraph of good intentions.** Resolved needs a citation, deferred needs a named target, dropped needs a reason — and the next agent to touch the doc re-checks the citation before trusting the label.
+18. **Draw when the picture is shorter than the paragraph — and draw the DAG always, in one shape.** Diagrams are a rendering of decisions the prose made; the DAG diagram is a status board regenerated from the ticket lines in the same commit as every state change.

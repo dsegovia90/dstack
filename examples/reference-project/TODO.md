@@ -18,11 +18,31 @@ than one line per ticket here, it belongs in the ticket file instead.
 
 ## Dependency graph
 
-```
-D1 (schema)
-  ├──> D2 (preferences UI) 🎨
-  └──> D3 (digest content builder) ──┬──> D4 (scheduled send job) 🚧
-                                      └──> D5 (unsubscribe link, also needs D2) 🎨
+_Derived from the ticket lines below — do not edit by hand. Re-render it (node class, new
+nodes) in the same commit as any status change. Shape per `llm-coding-workflow.md` "Diagrams"._
+
+```mermaid
+flowchart TD
+  classDef open fill:#fff,stroke:#999
+  classDef inprogress fill:#fff8dc,stroke:#d4a017
+  classDef done fill:#e6f4ea,stroke:#2e7d32
+  classDef blocked fill:#fdecea,stroke:#c62828
+  subgraph P1 [Phase 1]
+    D1["D1 · Schema migration"]:::done
+  end
+  subgraph P2 [Phase 2]
+    D2["D2 · Preferences UI 🎨"]:::done
+    D3["D3 · Digest content builder"]:::done
+  end
+  subgraph P3 [Phase 3]
+    D4["D4 · Scheduled send job 🚧"]:::blocked
+    D5["D5 · Unsubscribe/pause link 🎨"]:::open
+  end
+  D1 --> D2
+  D1 --> D3
+  D3 --> D4
+  D2 --> D5
+  D3 --> D5
 ```
 
 **Root:** D1

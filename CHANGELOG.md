@@ -5,6 +5,18 @@
 _See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
 status of each item. Entries land here one PR at a time as each ships._
 
+- **Diagrams — a tool, and one rigid convention.** Two separate things. **(A)** A fifth prep
+  question, `diagrams: mermaid | ascii | none`, sets the notation Pass 2 uses when a section
+  is shaped enough to earn a picture (a data model with three or more related tables, a
+  multi-hop request path, a component map, a state machine); the rule is "draw when the
+  picture is shorter than the paragraph it replaces," and the prose stays the decision.
+  **(B)** The Pass 3 DAG is now *always* drawn in one fixed Mermaid shape — `flowchart TD`,
+  one subgraph per phase, one edge per `blocked-by`, four verbatim `classDef` status classes
+  whose node class *is* the checkbox state — and re-rendered in the same commit as every
+  ticket state change, in both `notes.md` and `TODO.md`. The ticket one-liners remain the
+  source of truth; the diagram is derived. The reference project's ASCII DAGs are converted.
+  See `llm-coding-workflow.md`'s new "Diagrams" section.
+
 ## 0.3.0 — 2026-08-05
 
 - **Design posture (Step 1.8)** — dstack previously had no place to affirmatively decide how

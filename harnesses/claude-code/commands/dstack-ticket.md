@@ -70,7 +70,10 @@ Inside the project folder, check what's actually there:
   - The **Tickets** section — one line per ticket (skeleton only; full detail lives in
     `tickets/<id>.md`), checkbox (`[ ]`/`[~]`/`[x]`/`[!]`, plus 🚧 for human-gated infra steps
     and 🎨 for tickets that touch user-visible UI), with `blocked-by` / `blocks`.
-  - The **DAG** section — the diagram, declared **roots**, and **Phases** table.
+  - The **DAG** section — the diagram, declared **roots**, and **Phases** table. Read the
+    graph from the ticket one-liners (`blocked-by` / `blocks`), not from the diagram — the
+    diagram is a derived view in the conventional Mermaid shape (`SKILL.md` Step 3) and can
+    lag the lines if someone skipped a re-render.
   - Checkboxes are a **hint, not ground truth** — status drifts. Before treating an upstream
     ticket as done, sanity-check against the **code on disk** (does the file/dependency/route
     the ticket describes actually exist?), not just the checkbox. There is no Linear lookup
@@ -135,4 +138,7 @@ Present your choice to the user with:
 Then explicitly prompt the user to **confirm, correct the choice, or discuss** — and wait.
 Do not proceed to planning or implementation until they choose. Once confirmed, for Fork B,
 this is the point to actually fill in `tickets/<id>.md` (it was a stub until now) as part of
-entering the Pass-4 micro-plan.
+entering the Pass-4 micro-plan, flip the ticket to `[~]` in `TODO.md`, and **re-render its
+node to `:::inprogress` in the DAG diagram** — in `TODO.md` and in `notes.md`'s Pass 3 — the
+same edit, never a follow-up. For Fork A, re-render the node in `notes.md` the same way when
+the Linear issue moves to in-progress.

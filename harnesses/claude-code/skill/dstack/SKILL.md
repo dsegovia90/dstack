@@ -84,6 +84,7 @@ retro_cadence: per-phase | close-out-only
 repo_profile_location: claude-md | dstack-file | mixed | none
 design_posture: none | utility | existing | new
 design_ground_rules_location: claude-md | design-md | dstack-file | n/a
+diagrams: mermaid | ascii | none
 ---
 ```
 
@@ -100,6 +101,14 @@ design_ground_rules_location: claude-md | design-md | dstack-file | n/a
    recap before picking the next ticket; same-day work skips that overhead.
 4. **Retro cadence** — *per-phase checkpoints (recommended default)* / close-out only. Sets when
    `/dstack-retro` gets suggested during execution (always human-confirmed, never automatic).
+5. **Diagrams** — *Mermaid (recommended default)* / ASCII / none. This is a **tool** for making
+   Pass 2 readable: when a section is shaped enough to earn a picture (a data model with three
+   or more related tables, a request path with several hops, a component map, a state
+   machine), the pass offers to draw it in this notation. Mermaid renders in GitHub, Linear,
+   and most editors; ASCII suits docs mostly read in a terminal; none means prose only. Say
+   explicitly that this does **not** affect the Pass 3 DAG, which is always drawn, always in
+   Mermaid, in one fixed shape (see Step 3) — that's a status board, not an illustration. See
+   `llm-coding-workflow.md`'s "Diagrams" section for the when-to-draw table.
 
 ## Step 1.6 — Get grounded (source material)
 
@@ -201,11 +210,19 @@ blind; otherwise ask directly:
   API, components, the *how*); ticket grooming falls out of this as a side effect. Ground it in
   the durable repo profile (Step 1.7), the design ground rules (Step 1.8) if the project has a
   visual surface, plus a narrow, scoped look at the specific area this feature touches — not a
-  full-repo sweep.
+  full-repo sweep. Where a section is shaped enough to earn a picture — data model with three
+  or more related tables → `erDiagram`; a request path with several hops → `sequenceDiagram`;
+  component boundaries → `flowchart LR`; a lifecycle with named states → `stateDiagram-v2` —
+  **offer** to draw it in the notation `diagrams` names (unset → Mermaid; `none` → don't
+  offer). Draw only when the picture is shorter than the paragraph it replaces; never a
+  two-table schema. The prose is the decision; the picture is a rendering of it.
 - **Pass 3 — Execution phasing + DAG:** add an execution-by-phases section; turn the groomed
   seams into tickets chained by dependency (`blocked-by` / `blocks`), with roots and
   topological phases called out. **Keep this ticket set to one-liners in the doc itself** —
-  full scope/files/acceptance per ticket is generated in Step 3, not written here.
+  full scope/files/acceptance per ticket is generated in Step 3, not written here. Draw the
+  DAG in the **conventional Mermaid shape** (Step 3, below) — always Mermaid, regardless of
+  the `diagrams` answer, because this diagram is a live status board that gets re-rendered
+  with every ticket state change, not an illustration.
 
 Drive each pass by **asking guiding questions**, then writing the result into the *same*
 living doc (never spawn parallel files for passes — it is one enriched artifact). Reference
@@ -271,6 +288,34 @@ scan/triage mechanics.
   the Execution log (older entries roll into `execution-log-archive.md`). Match the shape used
   in `examples/reference-project/TODO.md`. **If you're about to write more than that one line
   per ticket into `TODO.md`, stop — that content belongs in `tickets/<id>.md`.**
+- **The DAG diagram, in both `notes.md` (Pass 3) and `TODO.md`, is always this shape** —
+  Mermaid, one fixed form, whatever the project's `diagrams` answer:
+
+  ```mermaid
+  flowchart TD
+    classDef open fill:#fff,stroke:#999
+    classDef inprogress fill:#fff8dc,stroke:#d4a017
+    classDef done fill:#e6f4ea,stroke:#2e7d32
+    classDef blocked fill:#fdecea,stroke:#c62828
+    subgraph P1 [Phase 1]
+      T1["T1 · Schema"]:::open
+    end
+    subgraph P2 [Phase 2]
+      T2["T2 · Settings UI 🎨"]:::open
+      T3["T3 · Recipient mgmt"]:::open
+    end
+    T1 --> T2
+    T1 --> T3
+  ```
+
+  The rules (from `llm-coding-workflow.md`'s "Diagrams" section — cite, don't restate, when
+  in doubt): `flowchart TD`; one `subgraph` per phase in order; node id = ticket id, label =
+  `id · title` + markers; one edge per `blocked-by`, upstream → downstream, nothing else; the
+  four `classDef` lines copied verbatim, node class = checkbox state. **The ticket one-liners
+  are the source of truth; the diagram is derived from them** and gets re-rendered — node
+  class flipped, node added — in the same commit as every status change (`/dstack-ticket`
+  and `/dstack-yolo` both do this at their status-flip steps). Keep a one-line `**Root:**`
+  under the diagram for terminal readers.
 - Create **`doc/dstack/<project>/tickets/<id>.md`** as an empty stub for every ticket in the
   DAG right now, so the skeleton's links never point at nothing — scope/files/acceptance get
   filled in only when a ticket is actually picked (`/dstack-ticket` or `/dstack-yolo`).
