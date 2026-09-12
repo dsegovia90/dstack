@@ -100,12 +100,18 @@ esac
 #    and whether it's stale against this source.
 VERSION="$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")"
 COMMIT="$(git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null || echo "uncommitted")"
+# The canonical source repo, so /dstack-feedback knows where to file issues without
+# depending on a local checkout. Prefer the actual remote (a fork stays a fork);
+# fall back to the canonical URL when this checkout has no origin.
+REPO="$(git -C "$SCRIPT_DIR" remote get-url origin 2>/dev/null || echo "https://github.com/dsegovia90/dstack.git")"
+REPO="${REPO%.git}"
 cat > "$TARGET/.dstack-version" <<EOF
 version=$VERSION
 commit=$COMMIT
 harness=$HARNESS
 installed_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "unknown")
 source=$SCRIPT_DIR
+repo=$REPO
 EOF
 echo "  .dstack-version written ($VERSION @ $COMMIT)"
 

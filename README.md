@@ -94,6 +94,13 @@ produced one of them.
    files, findings) rather than the plan, and ends with process-observations worth watching for
    recurrence across other projects. Anything that does recur belongs in this repo's own
    `meta/process-notes.md`, pasted in by a human, not merged automatically.
+11. **Friction with dstack itself gets logged, not remembered.** `/dstack-feedback <note>`
+   writes one file to `doc/dstack/feedback/` — repo-level, not per project, because it's about
+   the toolkit — with `status: new`, the installed version, and where you were. Costs nothing
+   at logging time; the agent is told to do the same when it hits an ambiguous or missing
+   instruction. Every ticket pick then gates those notes right after the findings scan: each
+   one is **filed** as a GitHub issue on the dstack repo (via `gh`, on your say-so) or
+   **dropped** with a reason. See `examples/feedback/` for the shape of one that was dropped.
 
 ## Install
 
@@ -221,6 +228,10 @@ pre-standalone version of dstack actually hit in production use:
 - **Don't skip the findings scan "just this once" before picking the next ticket.** It's a hard
   gate for a reason — the one time it gets skipped is the time something sits orphaned for
   weeks.
+- **Don't let a `feedback/` note sit `new`.** Same reason as the findings gate: the one time
+  the gate gets skipped is the time a real observation about the process quietly evaporates.
+  File it or drop it with a reason — and never file on the agent's own initiative; that's an
+  outward-facing action the human picks per note.
 - **Don't mark an open question "resolved" without a citation.** A resolution needs to point at
   the specific section where the decision actually lives, and the next agent to touch the doc
   is expected to open that section and check it, not trust the label — a "resolved" with no
@@ -247,6 +258,13 @@ error: `team_shape` → `solo`, `risk_tolerance` → `gate-every-ticket`, `resum
 `same-day` (skip the recap), `retro_cadence` → `per-phase`. This is a deliberate default, not a
 bug — see "Migrating a repo that already had dstack" above for backfilling it properly instead
 of relying on the fallback indefinitely.
+
+**How do I report a problem with dstack itself?** `/dstack-feedback "<what happened>"` the
+moment you notice it — it writes a `doc/dstack/feedback/` note and stops. The next ticket
+pick (or `/dstack-feedback` with no argument) walks every pending note and asks you to file it
+as a GitHub issue on the dstack repo or drop it with a reason. The issue goes to the `repo=`
+recorded in `.dstack-version` at install time (a fork stays a fork); an older install without
+that line falls back to the canonical repo.
 
 **What happens if I never run `/dstack-retro`?** Nothing breaks — ticket-level re-spec and
 findings-absorption both work independently of it. You just lose the cross-project learning

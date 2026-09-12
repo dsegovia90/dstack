@@ -61,6 +61,14 @@ frontier below. Present each one and get the user to choose one of the three leg
 Do not proceed to Step 4 while any finding is still `status: new` — this is a hard gate, not a
 suggestion. If there are none, say so briefly and continue.
 
+**Then the feedback gate, same shape.** Scan the repo-level **`doc/dstack/feedback/`** folder
+(notes about dstack *itself*, not about this project — see `dstack-feedback.md`) for anything
+with `status: new`. Each one gets exactly one of two outcomes, chosen by the user: **file** as
+a GitHub issue on the dstack repo (`gh issue create`, repo from `.dstack-version`'s `repo=`
+line), or **drop** with a one-line reason in the file. A note survives as `new` only if filing
+is impossible right now (`gh` missing, unauthenticated, offline) and the user declines to drop
+it — say so and move on. Never file without the user choosing to for that note.
+
 ## 4. Detect the ticketing fork, then read the DAG
 
 Inside the project folder, check what's actually there:
@@ -131,6 +139,11 @@ Present your choice to the user with:
   `per-phase`, the recommended default from Step 1.5). If it calls for a checkpoint here,
   suggest running `/dstack-retro` — a suggestion only, never automatic; the user can decline and
   keep going.
+
+If anything in this command's own instructions was ambiguous, missing a case, or fired a
+gate wrongly while you ran it, log it now with a `doc/dstack/feedback/` note
+(`dstack-feedback.md` Mode 1) — don't work around it silently. Don't file the issue; the gate
+asks the human next pick.
 
 Then explicitly prompt the user to **confirm, correct the choice, or discuss** — and wait.
 Do not proceed to planning or implementation until they choose. Once confirmed, for Fork B,
