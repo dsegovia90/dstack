@@ -70,7 +70,11 @@ produced one of them.
    stubs for every ticket right away so nothing links to nowhere.
 7. **Pick and work a ticket:** the next-ticket command scans for untriaged `findings/` first
    (a hard gate — see below), computes the eligible frontier (open tickets with every
-   dependency done), and presents its pick with reasoning and alternatives. Once confirmed, a
+   dependency done), and presents its pick with reasoning and alternatives. If you already
+   know what you want, say so up front — `/dstack-ticket D3`, `/dstack-ticket digest-emails`,
+   or a Linear id like `/dstack-ticket KAI-123` — and it skips the "which project" question
+   and proposes that ticket; the findings gate and the dependency check still run either
+   way (`/dstack-yolo D3` and `/dstack-retro digest-emails` take the same form). Once confirmed, a
    plan-mode micro-plan happens before any code — cadence depends on the `risk_tolerance`
    answer. Compare `tickets/D1.md`'s "Scope (as planned)" section to its "Re-spec — what
    actually shipped" section: the plan changed once real implementation surfaced a wrinkle
@@ -257,6 +261,14 @@ reads the accumulated history as a set.
 harness adapter is built. The spec itself (`spec/llm-coding-workflow.md`) is deliberately
 harness-agnostic prose with no tool-specific syntax, so a new adapter is meant to be a thin
 translation layer, not a rewrite. See `harnesses/_template/README.md` if you want to build one.
+
+**Can I skip the "which project / which ticket" questions?** Yes — every command takes an
+optional argument: `/dstack <project>`, `/dstack-ticket <project | ticket-id | LINEAR-ID>`,
+`/dstack-yolo <project | ticket-id>`, `/dstack-retro <project>`. A ticket argument is a
+*proposal*, not an override: the findings scan still runs first, and the ticket still has to
+be on the eligible frontier (every dependency genuinely done, checked against the code on
+disk). If it isn't, the command says which dependency is unmet and falls back to the normal
+pick. An argument that matches nothing is reported, not guessed at.
 
 **Does this work for a bug fix or refactor, not just a new feature?** Yes — the planning skill
 asks what kind of work it is up front and compresses the three passes sensibly for anything
