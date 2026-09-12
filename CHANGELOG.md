@@ -5,6 +5,18 @@
 _See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
 status of each item. Entries land here one PR at a time as each ships._
 
+- **Rollout posture (Step 1.9)** — in a codebase that gates new behavior behind feature flags
+  (or a beta cohort, a canary), "is this flagged?" was a decision no pass asked, so it got
+  invented mid-ticket or skipped. New grounding step, same shape as design posture: record
+  once per project whether a rollout mechanism exists (`none` / `flags` / `staged`) and where
+  its convention lives (`CLAUDE.md`-first). When it does: Pass 1 requires a per-feature
+  *Rollout:* line (flag, default, audience — or "not flagged, because"); Pass 3 marks each
+  ticket that ships behind the flag 🚩 (soft signal, like 🎨) and, for a temporary flag,
+  **adds a cleanup ticket to the DAG** blocked by the last flagged one — removing a flag is
+  work, and work gets a node. Ticket detail and Fork A issue descriptions carry a one-line
+  *Rollout:* field. Persists as `rollout_posture` / `rollout_convention_location`; unset →
+  `none`. See `llm-coding-workflow.md`'s "Rollout posture" section.
+
 ## 0.3.0 — 2026-08-05
 
 - **Design posture (Step 1.8)** — dstack previously had no place to affirmatively decide how

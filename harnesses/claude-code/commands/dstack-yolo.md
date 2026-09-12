@@ -49,8 +49,8 @@ architectural context and the prep-question front matter). If exactly one projec
 
 Parse from `TODO.md`:
 - the **ticket set** with statuses (`[ ]` open · `[~]` in-progress · `[x]` done · `[!]`
-  blocked/paused · 🚧 human-gate · 🎨 design-touching) — one line per ticket, pointing at
-  `tickets/<id>.md` for depth,
+  blocked/paused · 🚧 human-gate · 🎨 design-touching · 🚩 flag-gated) — one line per ticket,
+  pointing at `tickets/<id>.md` for depth,
 - the **dependency edges** (`Blocked-by` / `Blocks`), **roots**, and **topological phases**,
 - the last ~10 lines of the **Execution log** inline; the full history lives in
   `execution-log-archive.md` if more context is needed.
@@ -118,6 +118,14 @@ If this ticket is marked 🎨, check the work against the project's design groun
 `SKILL.md`) before calling it done. This is not a 🚧-style hard gate — it doesn't pause
 autonomous execution — but a ticket that visibly drifts from established ground rules should be
 noted in its re-spec, the same as any other divergence, not silently shipped.
+
+If this ticket is marked 🚩, confirm before `[x]` that the new behavior is actually behind
+the flag named in the ticket's **Rollout:** line, that the flag is registered per the
+convention `rollout_convention_location` points at (Step 1.9 in `SKILL.md`), and that it
+defaults the way the line says (usually off). Same soft-gate semantics as 🎨: a mismatch is a
+re-spec note, not a silent ship — and if the flag turned out to be unnecessary or permanent,
+the Rollout line and the cleanup ticket (drop it from the DAG, with a log entry) get updated
+in the same commit.
 
 If the implementation diverged from the plan, **rewrite `tickets/<id>.md`** so it describes
 what was actually built (not the original promise) — this is the atomic bundling that makes

@@ -127,6 +127,21 @@ The output of this isn't prose buried in Pass 1 — it's a **recorded posture** 
 
 ---
 
+## Rollout posture: how new behavior reaches users, decided once
+
+Some codebases ship every change straight to everyone. Others put new behavior behind a feature flag, a beta cohort, a per-tenant enable, or a canary — and in those codebases, "is this flagged?" is a real decision every feature has to make, with consequences the ticket text needs to carry (what the flag is called, what it defaults to, who sees it, when it comes out). Left unasked, it fails the same way design posture does: either an agent invents a flag ad hoc mid-ticket with no naming convention behind it, or a feature that should have shipped dark ships live because nobody said otherwise. Neither is a decision — both are what happens when the question never gets asked.
+
+Same fix, same volatility split:
+
+- **Whether this codebase uses a rollout mechanism at all, and what its convention is** — the flag system, how flags are named, how one is added/toggled/removed, whether temporary flags are expected to be cleaned up — is durable. Decide it **once per project**, record it, and point at the convention (in `CLAUDE.md` if it lives there, same preference as the repo profile) rather than re-deriving it per feature. "This codebase doesn't gate anything" is a legitimate, recorded answer.
+- **Whether *this feature* ships behind the mechanism** is per-feature and belongs in Pass 1, next to the MVP surface: *behind flag `X`, default off, visible to internal users* — or *not flagged, because Y*. Never silent when the project's posture says a mechanism exists. If it can't be decided yet, it's a ledger row.
+- **A temporary flag's removal is work, and work gets a ticket.** A flag that's meant to come out once the feature is proven is a promise with no forcing function — exactly the shape that rots. So Pass 3 gives it a node in the DAG: a cleanup ticket, blocked by the last ticket that ships behind the flag, that removes the flag and the dead path. It sits on the frontier after launch like any fast-follow, where the next-ticket pick will find it. A flag that's meant to be permanent (a tenant-level capability, say) doesn't get one — say so.
+- **Tickets that put behavior behind the flag carry a visible marker** — soft, like the design one: not a gate, but a signal that the ticket's micro-plan and close-out should confirm the flag is wired and defaults the way the convention says, and that its detail (and, in a structured ticketing backend, its issue description) carries a one-line **Rollout:** field naming the flag, its default, and the cleanup ticket.
+
+The point, as with design posture, is that "no rollout mechanism" and "everything flagged, cleanup ticketed" are both fine — and "we never decided" is the only failure mode.
+
+---
+
 ## The context each ticket gets at execution time
 
 - **Backward (state of the world):** the model reads **both** the **ticket** (intent, kept truthful — see Keystone) and the **actual code** on disk (reality), and reconciles them.
@@ -298,3 +313,4 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 15. **Split grounding by volatility.** Durable repo facts prefer `CLAUDE.md` and get patched, not regenerated; feature-specific facts stay scoped and fresh every single time.
 16. **Design posture is a decision, not a default.** "No visual surface," "deliberately utility-only," "follow the existing system," and "establish one now" are all legitimate answers — the failure mode is never picking one and letting Pass 2 invent it silently.
 17. **Open questions are a ledger with required evidence, not a paragraph of good intentions.** Resolved needs a citation, deferred needs a named target, dropped needs a reason — and the next agent to touch the doc re-checks the citation before trusting the label.
+18. **Rollout posture is a decision too, and flag cleanup is a ticket.** Decide once whether the codebase gates new behavior and where the convention lives; then every feature states whether it's flagged, and a temporary flag's removal gets a DAG node instead of a reminder.

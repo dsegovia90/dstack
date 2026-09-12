@@ -15,6 +15,9 @@ than one line per ticket here, it belongs in the ticket file instead.
   barrel through it
 - 🎨 design-touching — check against the project's design ground rules (`notes.md` Step 1.8)
   before closing; not a hard gate, just a visible reminder
+- 🚩 flag-gated — this ticket puts behavior behind a feature flag; confirm it's wired and
+  defaults per the project's rollout convention (`notes.md` Step 1.9) before closing. Not used
+  in this project (`rollout_posture: none`) — listed so the legend is complete
 
 ## Dependency graph
 

@@ -7,6 +7,8 @@ retro_cadence: per-phase
 repo_profile_location: mixed
 design_posture: existing
 design_ground_rules_location: claude-md
+rollout_posture: none
+rollout_convention_location: n/a
 last_session_at: 2026-06-14T09:00:00-06:00
 ---
 
@@ -36,6 +38,12 @@ longer and more specific than this, but the structure and section names are the 
   components directly, and are marked 🎨 in `TODO.md` as a reminder to check that reuse against
   `CLAUDE.md`'s conventions before either ticket is closed — not because this project needed a
   bespoke visual identity.
+- **Step 1.9 — rollout posture:** `rollout_posture: none` (front matter above). The host app
+  has no feature-flag system, and the digest is opt-in per user anyway — the preference toggle
+  *is* the rollout gate, so no flag, no 🚩 tickets, no cleanup node. Recorded so a later reader
+  knows this was decided, not skipped. A project whose posture is `flags` would instead carry
+  a *Rollout:* line under MVP surface, 🚩 on each flagged ticket, and a cleanup ticket in the
+  DAG.
 
 ---
 
