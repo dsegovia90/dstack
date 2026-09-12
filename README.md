@@ -46,7 +46,12 @@ produced one of them.
    existing design system/component library govern it, is it deliberately utility-only, or
    does one need to be established now before Pass 2 goes far? In the reference project,
    `design_posture: existing` — the host app's `CLAUDE.md` already documents its component
-   library, so no new design work was needed, just a pointer to it.
+   library, so no new design work was needed, just a pointer to it. Last, the same question
+   about **rollout** (Step 1.9): does this codebase ship new behavior behind feature flags (or
+   a beta cohort, a canary), and if so where's the convention? The reference project answers
+   `rollout_posture: none` — the digest is opt-in per user, so no flag. A project that answers
+   `flags` gets a required *Rollout:* line per feature in Pass 1, a 🚩 marker on each ticket
+   that ships behind the flag, and — if the flag is temporary — a cleanup ticket in the DAG.
 3. **Pass 1 — Intake:** guided questions fill in whatever Step 1.6 didn't already answer — the
    "what": product intent, problem, MVP surface, success criteria. Anything that can't be
    settled yet becomes a row in the **open questions ledger** — an id, a status (resolved with
@@ -205,6 +210,15 @@ Any line only on one side of that diff is a word whose count changed — worth c
 - **No visual surface at all (CLI, API, background job) → "none."** Also a deliberate, recorded
   answer, not a skipped question.
 
+**What rollout posture do I pick (Step 1.9)?**
+- **The codebase has a feature-flag system → "flags."** Point dstack at the convention (or
+  write it into `CLAUDE.md` now — flag service, naming, add/toggle/remove, cleanup
+  expectation). From then on every feature says whether it's flagged, flagged tickets get 🚩,
+  and a temporary flag's removal is a ticket in the DAG, not a reminder.
+- **Beta cohorts, per-tenant enables, canaries → "staged."** Same shape, different mechanism.
+- **Everything ships to everyone → "none."** The recommended default when nothing says
+  otherwise — and a recorded answer, so a later reader knows it was considered.
+
 ## Common mistakes
 
 Drawn from real evidence, not hypotheticals — these are documented failure modes a prior,
@@ -244,7 +258,7 @@ start and otherwise trusted. Downstream commands will pick up the new value on t
 predates the four prep questions, or one where only some got backfilled)? Every command falls
 back to that question's stated recommended default from Step 1.5 rather than treating it as an
 error: `team_shape` → `solo`, `risk_tolerance` → `gate-every-ticket`, `resumability_cadence` →
-`same-day` (skip the recap), `retro_cadence` → `per-phase`. This is a deliberate default, not a
+`same-day` (skip the recap), `retro_cadence` → `per-phase`, `rollout_posture` → `none`. This is a deliberate default, not a
 bug — see "Migrating a repo that already had dstack" above for backfilling it properly instead
 of relying on the fallback indefinitely.
 

@@ -39,9 +39,10 @@ Once the project is settled, look inside it for an existing living doc (`notes.m
 and/or a `TODO.md`.
 - **If found:** name what you found and which pass it reached (scan its headers — does it
   have a Pass 2 / Pass 3 section? a ticket DAG? front matter with prep-question answers, see
-  Step 1.5? a `design_posture` answer, see Step 1.8?). Ask whether to **resume** that project
-  (and at which pass) or **start something new**. If resuming, load it into context, skip
-  Step 1.5 and Step 1.8 (their answers are already in the doc's front matter), and jump to the
+  Step 1.5? a `design_posture` answer, see Step 1.8? a `rollout_posture` answer, see Step
+  1.9?). Ask whether to **resume** that project (and at which pass) or **start something
+  new**. If resuming, load it into context, skip Steps 1.5, 1.8, and 1.9 (their answers are
+  already in the doc's front matter), and jump to the
   relevant step below. Before treating the doc as settled, run the **open questions ledger's
   required confirmation pass** (see Step 2) over any row still carrying a "Resolved" or
   "Deferred" status from a prior session — a resumed session is exactly the kind of consuming
@@ -84,6 +85,8 @@ retro_cadence: per-phase | close-out-only
 repo_profile_location: claude-md | dstack-file | mixed | none
 design_posture: none | utility | existing | new
 design_ground_rules_location: claude-md | design-md | dstack-file | n/a
+rollout_posture: none | flags | staged
+rollout_convention_location: claude-md | dstack-file | n/a
 ---
 ```
 
@@ -123,7 +126,7 @@ If material is provided:
   silently.
 
 If nothing is provided, this step is a no-op — proceed to Step 1.7, then Step 1.8, then Step
-2's Pass 1 as normal.
+1.9, then Step 2's Pass 1 as normal.
 
 ## Step 1.7 — Repo profile (existing codebases only)
 
@@ -186,6 +189,37 @@ replace Pass 2's per-feature visual decisions — once ground rules exist (or th
 utility/none decision is recorded), Pass 2's Component architecture still makes this feature's
 specific screens/components, grounded against whatever was established here.
 
+## Step 1.9 — Rollout posture (does new behavior ship behind a flag?)
+
+Skip this step when resuming (the project's earlier answer persists in front matter as
+`rollout_posture`). Otherwise, ask once, via `AskUserQuestion` — see `llm-coding-workflow.md`'s
+"Rollout posture" section for the full reasoning:
+
+1. **No rollout mechanism** *(recommended default when nothing in `CLAUDE.md` or the codebase
+   says otherwise)* — changes ship to everyone. Record `rollout_posture: none`; this is a
+   deliberate answer, not a skipped question. Nothing below applies to this project.
+2. **Feature flags** — a flag system governs new behavior. Ask where its **convention** lives:
+   which flag service/library, how flags are named, how one is added/toggled/removed, and
+   whether temporary flags are expected to be cleaned up. Same `CLAUDE.md`-first logic as
+   Step 1.7: if it's documented there, point at it; if it's partially or not documented, ask
+   whether to **add the missing pieces to `CLAUDE.md`** *(recommended)* or write them to
+   `doc/dstack/<project>/rollout-convention.md`. Record `rollout_posture: flags`.
+3. **Other staged rollout** — a beta cohort, per-tenant enable, canary, or similar. Same
+   convention question and recording. Record `rollout_posture: staged`.
+
+Record the answer and its location in front matter (`rollout_posture`,
+`rollout_convention_location`). When the posture is `flags` or `staged`, three things follow
+downstream — say so now, briefly, so the question doesn't feel arbitrary:
+
+- **Pass 1 states the per-feature decision** (Step 2): a required *Rollout:* line under the
+  MVP surface — behind which flag, defaulting to what, visible to whom — or *not flagged,
+  because …*. Unknown yet → an open-questions ledger row, not silence.
+- **Pass 3 marks flagged tickets 🚩 and adds a cleanup ticket** (Step 3) when the flag is
+  temporary — removing a flag is work, and work gets a DAG node.
+- **Ticket detail carries a `Rollout:` field** — flag name, default, cleanup ticket id — in
+  `tickets/<id>.md` for Fork B and in the Linear issue description for Fork A, so whoever
+  picks the ticket up (or reads the issue) sees the flag guidance without opening the doc.
+
 ## Step 2 — Establish the project + entry pass
 
 If starting fresh, ask for a short **project name** (kebab-case) → this becomes
@@ -193,8 +227,12 @@ If starting fresh, ask for a short **project name** (kebab-case) → this become
 provided material, put its recommendation to the user as the default option rather than asking
 blind; otherwise ask directly:
 - **Pass 1 — Intake:** the *what*. Product intent, the problem, the MVP surface, success
-  criteria. Output: `doc/dstack/<project>/notes.md` with the Pass-1 sections (plus the Step 1.5
-  front matter). Anything that can't be settled yet goes into an **open questions ledger**
+  criteria. If `rollout_posture` is `flags` or `staged` (Step 1.9), the MVP surface ends with
+  a required **Rollout:** line — *behind flag `<name>`, default off, visible to <who>* or *not
+  flagged, because <reason>* — decided here, not invented mid-ticket; if it genuinely can't
+  be decided yet, it's a ledger row. Output: `doc/dstack/<project>/notes.md` with the Pass-1
+  sections (plus the Step 1.5 front matter). Anything that can't be settled yet goes into an
+  **open questions ledger**
   section — a table with columns id / question / raised-in-pass / status — not a loose bullet
   list. See `llm-coding-workflow.md`'s "Open questions" section for the exact row format.
 - **Pass 2 — Architecture:** rewrite the *same* doc through a structural lens (data model,
@@ -265,7 +303,8 @@ scan/triage mechanics.
 
 ### Fork B — Local TODO.md (lighter weight / solo / autonomous) *(default for this repo today)*
 - Generate **`doc/dstack/<project>/TODO.md`** as a pure **skeleton**: a status legend
-  (`[ ] [~] [x] [!]`, plus 🚧 human-gate and 🎨 design-touching), the DAG diagram, roots +
+  (`[ ] [~] [x] [!]`, plus 🚧 human-gate, 🎨 design-touching, and 🚩 flag-gated when the
+  project's posture calls for it), the DAG diagram, roots +
   topological phases, and **one line per ticket** — `- [ ] **T3** Recipient mgmt — blocked-by:
   T1,T3 · blocks: T6,T7 · phase 3 · [detail](tickets/T3.md)` — plus only the last ~10 lines of
   the Execution log (older entries roll into `execution-log-archive.md`). Match the shape used
@@ -282,6 +321,14 @@ scan/triage mechanics.
   `new` (Step 1.8) — unlike 🚧 this is **not** a hard gate, just a visible signal that the
   ticket's Pass-4 micro-plan and close-out should check its work against the design ground
   rules before the ticket is called done, so visual polish doesn't silently get skipped.
+- Mark any ticket that puts behavior behind the flag with 🚩 when `rollout_posture` is
+  `flags` or `staged` (Step 1.9) — same soft-signal semantics as 🎨: the micro-plan and
+  close-out should confirm the flag is wired and defaults per the convention. Each 🚩
+  ticket's `tickets/<id>.md` (or Linear description, Fork A) gets a one-line **Rollout:**
+  field — flag name, default, cleanup ticket. **If the flag is temporary, add a cleanup
+  ticket to the DAG now** — remove the flag + the dead path, `blocked-by` the last 🚩 ticket,
+  in its own phase after launch — so removal is a node the next-ticket pick will find, not a
+  reminder that rots. If the flag is permanent, say so in the Rollout line instead.
 - Hand off: tell the user to run **`/dstack-yolo`** to autonomously work the whole DAG
   (findings scan → plan-gate per `risk_tolerance` → implement → verify → re-spec → loop), or
   **`/dstack-ticket`** if they just want the next ticket picked and confirmed without
@@ -294,6 +341,9 @@ Summarize: the project, the pass reached, the artifacts written (`doc/dstack/<pr
 and `TODO.md` + `tickets/` + `findings/` if Fork B). Tell the user the exact next command
 (`/dstack-ticket` or `/dstack-yolo`). Remind them:
 
+- if `rollout_posture` is `flags` or `staged`, every 🚩 ticket's close-out checks the flag
+  against the convention, and the cleanup ticket is in the DAG — it'll surface on the
+  frontier after launch, not need remembering;
 - the **post-completion re-spec keystone** keeps tickets truthful, and it works best when it's
   bundled into the same commit/close-out step as the code — not left as a thing to remember;
 - **freestanding findings** (audits, reviews) get written to `findings/` and get scanned before
