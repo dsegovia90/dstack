@@ -4,6 +4,7 @@ team_shape: solo
 risk_tolerance: gate-every-ticket
 resumability_cadence: days-apart
 retro_cadence: per-phase
+vcs_shape: branch-per-project
 repo_profile_location: mixed
 design_posture: existing
 design_ground_rules_location: claude-md

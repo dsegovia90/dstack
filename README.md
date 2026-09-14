@@ -75,7 +75,12 @@ produced one of them.
    answer. Compare `tickets/D1.md`'s "Scope (as planned)" section to its "Re-spec — what
    actually shipped" section: the plan changed once real implementation surfaced a wrinkle
    (needing per-user timezone, not just day-of-week), and the ticket was rewritten to match,
-   in the same commit as the code.
+   in the same commit as the code. *Where* that commit lands is the `vcs_shape` prep answer:
+   the reference project is `branch-per-project` — one `dstack/digest-emails` branch, one
+   commit per ticket, a PR at the phase boundary. A team project would more likely pick
+   `branch-per-ticket` (a branch and a PR per ticket, stacked when a dependency's PR is still
+   open). Either way the closing step (`/dstack-ticket` Step 7, `/dstack-yolo` Step 6) does
+   re-spec + status + commit as one action, so re-spec can't be skipped.
 8. **Findings show up mid-project too.** `findings/email-deliverability-review.md` is a
    discovery made *while* working D3, unrelated to D3's original scope — it got folded
    straight into that ticket rather than left to rot as a loose file. Compare
@@ -191,6 +196,15 @@ Any line only on one side of that diff is a word whose count changed — worth c
   didn't need it, but its absence is expensive on a day you did.
 - **Retro cadence:** "per-phase" if the project has more than a couple of phases; "close-out
   only" for something small enough that a mid-project checkpoint would just be close-out early.
+- **Version-control shape:** follow the `team_shape` recommendation unless you have a reason.
+  `branch-per-project` (solo default) — one branch, one commit per ticket, PR at phase
+  boundaries. `branch-per-ticket` (team default) — a PR per ticket is the diff a reviewer can
+  actually read, and the review is what makes re-spec reliable on a team; Fork A uses Linear's
+  own branch name per issue so it auto-links. `trunk` — solo, no review surface, commits go
+  straight to `main`; legitimate, but you lose the PR as a place to read a ticket's diff.
+  Whatever you pick, dstack only owns the *unit* (one ticket = one commit bundling code +
+  re-spec + status), the *trailers*, and the *shape* — merge strategy, CI, review rules, and
+  release tagging stay your repo's (`CLAUDE.md`).
 
 **What design posture should I pick (Step 1.8)?**
 - **Has a visual surface, and a system already governs it (brand guidelines, component
@@ -244,9 +258,16 @@ start and otherwise trusted. Downstream commands will pick up the new value on t
 predates the four prep questions, or one where only some got backfilled)? Every command falls
 back to that question's stated recommended default from Step 1.5 rather than treating it as an
 error: `team_shape` → `solo`, `risk_tolerance` → `gate-every-ticket`, `resumability_cadence` →
-`same-day` (skip the recap), `retro_cadence` → `per-phase`. This is a deliberate default, not a
+`same-day` (skip the recap), `retro_cadence` → `per-phase`, `vcs_shape` → `branch-per-project`. This is a deliberate default, not a
 bug — see "Migrating a repo that already had dstack" above for backfilling it properly instead
 of relying on the fallback indefinitely.
+
+**How opinionated is dstack about git?** Exactly this much: one ticket = one commit that
+bundles code + re-spec + status; every ticket commit carries `Dstack-Project` /
+`Dstack-Ticket` trailers; the branch/PR shape is the `vcs_shape` prep answer. That's the whole
+opinion. Merge strategy, CI, who approves, branch protection, PR templates, release tagging —
+dstack reads those from your `CLAUDE.md` and never sets them, because they're properties of
+your repo, not of how work gets planned.
 
 **What happens if I never run `/dstack-retro`?** Nothing breaks — ticket-level re-spec and
 findings-absorption both work independently of it. You just lose the cross-project learning

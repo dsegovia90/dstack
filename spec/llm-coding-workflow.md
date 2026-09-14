@@ -264,6 +264,7 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 - **Risk tolerance for autonomous execution — how much should the agent do without pausing for sign-off?** Ranges from gating every ticket before any code is written (the safe default) to full autonomy bounded only by hard gates on genuinely irreversible actions (migrations against live data, secrets/credential changes, destructive operations, external infra). Hard gates are never something a risk-tolerance setting relaxes — they exist because some actions are categorically different from "got the ticket wrong," not because the default is overcautious.
 - **Resumability cadence — same day, days apart, or unpredictable/weeks between sessions?** A return after weeks needs real "since you were last here" scaffolding — a recap of what changed since the last touch — that a same-day return doesn't, and shouldn't pay the overhead of. Sized wrong in either direction, this either buries a frequent user in recap noise or leaves an infrequent one to reconstruct context from scratch every time.
 - **Retro cadence — checkpoints at natural phase boundaries, or only at project close-out?** Sets when the retrospective pass above actually fires as a suggestion.
+- **Version-control shape — one branch per project, one branch (and PR) per ticket, or straight onto trunk?** Sets how the ticket-closing step packages its work (see Tooling, below, for what each shape means and for the line between what this process owns about version control and what it leaves to the host repo). Team shape is the leading signal: a team's PR-per-ticket review cycle is the thing that makes re-spec reliable without extra discipline, so branch-per-ticket is the natural fit there; a solo project gets that reliability from the closing step's own bundling and can keep one branch per project with a PR at phase boundaries. Trunk is legitimate for solo work with no review surface at all — it just gives up the PR as a place to read the diff.
 
 ---
 
@@ -276,6 +277,20 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 
   Team shape (Prep questions) is the leading signal for which fork suits a given project, stated as reasoning, not a silent default — either fork can work; the question is which one costs the least extra discipline to keep reliable given how the project is actually staffed.
 - **Source of truth for reality:** the **code on disk**, read alongside tickets at execution time.
+- **Version control — what this process owns, and what it doesn't.** It owns exactly three things, and holds them for every project regardless of shape:
+  1. **The unit.** One ticket = one commit that bundles the code, the ticket's re-spec, and its status change (the Keystone's structural bundling). A ticket's work is never split across commits that could land separately, and a closing commit is never rewritten once it's been pushed or a PR opened on it.
+  2. **The trailers.** Every ticket commit carries `Dstack-Project: <project>` and `Dstack-Ticket: <id>` — what makes a project's history findable after branches are merged and deleted.
+  3. **The shape**, chosen once per project (Prep questions):
+
+     | shape | branch | commit | PR |
+     |---|---|---|---|
+     | branch-per-project | one working branch per project, cut from trunk at the first ticket | one per ticket | at a phase boundary or close-out, suggested alongside the retro |
+     | branch-per-ticket | one branch per ticket, cut from trunk — or, when a dependency's PR is still open, stacked on that branch | one per ticket | one per ticket; the ticket's re-spec section is the PR body |
+     | trunk | none — commits land on trunk directly | one per ticket | none |
+
+     Branch names: for a local ticketing fork, `dstack/<project>` or `dstack/<project>/<id>-<slug>`; for a structured backend that issues its own branch name per ticket (Linear does), use that name verbatim — the backend's auto-linking depends on it, and its format is the backend's setting, not this process's.
+
+  It does **not** own — and deliberately reads from the host repo's own conventions (`CLAUDE.md` or equivalent) rather than setting — merge strategy (squash vs. rebase vs. merge), CI requirements, review rules and who approves, branch protection, PR templates, release tagging. Those are properties of the repo, not of how work is planned; a process that dictated them would be wrong for most repos it was installed into. Hard gates (🚧) are unchanged by any of this: no shape makes a destructive git operation — force-push, history rewrite — acceptable.
 
 ---
 
@@ -294,7 +309,8 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 11. **Recover at the right scale** — steer, grow the graph, or cold-restart.
 12. **Keep the project alive past launch.** Bugs and fast-follows join the same graph, so the accumulated, truthful context stays queryable by the model for the life of the system.
 13. **Retrospect on purpose.** Reading the accumulated history as a set — not just each entry individually — is what turns local honesty into process improvement over time.
-14. **Ask what shapes the project before starting.** Team shape, risk tolerance, resumability cadence, and retro cadence aren't bureaucracy — each one changes a concrete downstream default that would otherwise be guessed at, differently, every time.
+14. **Ask what shapes the project before starting.** Team shape, risk tolerance, resumability cadence, retro cadence, and version-control shape aren't bureaucracy — each one changes a concrete downstream default that would otherwise be guessed at, differently, every time.
 15. **Split grounding by volatility.** Durable repo facts prefer `CLAUDE.md` and get patched, not regenerated; feature-specific facts stay scoped and fresh every single time.
 16. **Design posture is a decision, not a default.** "No visual surface," "deliberately utility-only," "follow the existing system," and "establish one now" are all legitimate answers — the failure mode is never picking one and letting Pass 2 invent it silently.
 17. **Open questions are a ledger with required evidence, not a paragraph of good intentions.** Resolved needs a citation, deferred needs a named target, dropped needs a reason — and the next agent to touch the doc re-checks the citation before trusting the label.
+18. **Own the unit, the trailers, and the shape of version control — nothing else.** One ticket is one commit bundling code + re-spec + status, always with trailers, packaged per the project's chosen branch/PR shape; merge strategy, CI, review rules, and release mechanics belong to the host repo.

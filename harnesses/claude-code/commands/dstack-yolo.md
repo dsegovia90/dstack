@@ -32,13 +32,17 @@ and find parallel work rather than stopping — but you stop *cleanly* when stop
   shipped, and log it. No need to ask.
 - **Auto-parallel on blockers.** When a ticket can't proceed, mark it `[!]` in `TODO.md`,
   record the blocker in `tickets/<id>.md`, and **switch to other eligible work** automatically.
-- **One commit per ticket.** Each ticket is a self-contained, reviewable chunk, so it gets
-  its own commit. Before writing any code this session, ensure you're on a **working branch**
-  — if on `main`/`master`, branch off first (e.g. `dstack/<project>`). After a ticket is
-  verified and re-spec'd, commit *just that ticket's* changes with a message naming the work,
-  and trailers `Dstack-Project: <project>` and `Dstack-Ticket: <id>` (see Step 6) — these are
+- **One commit per ticket; branch and PR per `vcs_shape`.** Each ticket is a self-contained,
+  reviewable chunk, so it gets its own commit — code + re-spec + status bundled, with
+  trailers `Dstack-Project: <project>` and `Dstack-Ticket: <id>` (see Step 6) — these are
   what let `/dstack-retro` find this project's history later even after the branch is merged
-  and deleted.
+  and deleted. *Where* that commit lands is `vcs_shape` from `notes.md` front matter (unset →
+  `branch-per-project`, the solo default): **`branch-per-project`** — one `dstack/<project>`
+  branch for the whole run, PR at a phase boundary or close-out; **`branch-per-ticket`** — a
+  fresh branch and a PR per ticket (stacked on a dependency's branch when its PR is still
+  open — see Step 5); **`trunk`** — commits straight onto `main`/`master`. Never force-push,
+  never rewrite a pushed ticket commit, in any shape. Merge strategy, CI, review rules are the
+  host repo's (`CLAUDE.md`) — follow, don't set.
 - **Pause before going too far** (see Stop conditions). Don't thrash; don't overrun a blocker.
 
 ## 1. Locate the project + read the DAG
@@ -102,10 +106,17 @@ scope. Mark the ticket `[~]` in `TODO.md` when work begins.
 
 ## 5. Implement + verify
 
-**Working branch first.** Before writing code on the first ticket of the session, make sure
-you're not on `main`/`master`. If you are, branch off to a working branch (e.g.
-`dstack/<project>`) so all ticket commits land off the trunk. On later tickets this is a
-no-op — you're already on the branch.
+**Branch first, per `vcs_shape`.**
+- `branch-per-project` (default): before the first ticket of the session, make sure you're on
+  `dstack/<project>` — cut it from `main`/`master` if needed. Later tickets: a no-op.
+- `branch-per-ticket`: before *every* ticket, cut a fresh `dstack/<project>/<id>-<short-slug>`
+  from `main`/`master`. **If an upstream dependency is done but its PR hasn't merged**, stack:
+  cut from that dependency's branch instead, open this ticket's PR against it (Step 6), and
+  log "stacked on <id> (#N)" — GitHub retargets it to `main` when the dependency merges.
+  Stacking is what keeps warm-context chaining alive under this shape; but don't stack more
+  than **two deep** — at three unmerged PRs in a line, pause (Step 8) and let review catch up.
+  Independent tickets (no unmerged dependency) always cut from `main`/`master`.
+- `trunk`: stay on `main`/`master`; commits land there directly.
 
 After approval (or directly, at `full-autonomy-except-gates`), implement in warm context. Then
 **verify** before claiming done — run the app and/or tests as appropriate for the ticket.
@@ -140,8 +151,15 @@ Dstack-Project: <project>
 Dstack-Ticket: T2
 ```
 
-One ticket = one commit, on the working branch from Step 5 — never commit straight to
-`main`/`master`.
+One ticket = one commit, on the branch from Step 5. Under `branch-per-project` and
+`branch-per-ticket`, never commit straight to `main`/`master`; under `trunk`, that's the
+shape. Never force-push or rewrite a pushed ticket commit in any shape.
+
+**Then the PR, per `vcs_shape`.** `branch-per-ticket`: push and `gh pr create` — title = the
+commit subject, body = the ticket's re-spec section, base = `main` or the stacked-on branch;
+append the PR number to the Execution-log line. `branch-per-project`: push; if this ticket
+closed a phase (or the DAG), suggest a PR alongside the retro suggestion — don't open one
+per ticket. `trunk`: push; no PR.
 
 Then return to **Step 2** for the next ticket (findings scan first, every loop).
 
@@ -171,7 +189,12 @@ Pause and hand back to the human when:
 - **context rot** is detected,
 - **a phase boundary is reached and `retro_cadence` is `per-phase`** (or unset — `per-phase` is
   the recommended default from Step 1.5) — suggest running `/dstack-retro` before continuing (a
-  suggestion, never automatic; the human can decline and keep going).
+  suggestion, never automatic; the human can decline and keep going),
+- **`vcs_shape` is `branch-per-ticket` and review needs to catch up** — either
+  `risk_tolerance` is `gate-every-ticket` and the next eligible ticket *depends on* a PR you
+  just opened (a team's review is the re-spec forcing function; don't build on top of an
+  unreviewed diff at the tightest tier), or you'd be stacking a third unmerged PR in a line at
+  any tier. Independent work off `main` is still fine — pick that instead if there is any.
 
 When you pause, leave `TODO.md` in a clean, accurate state (statuses + Execution log current,
 archived if past the ~10-line cap) and give a tight status report: what shipped, what's
