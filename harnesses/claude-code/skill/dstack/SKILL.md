@@ -81,6 +81,7 @@ team_shape: solo | small-team | larger-team
 risk_tolerance: gate-every-ticket | gate-first-and-risky | full-autonomy-except-gates
 resumability_cadence: same-day | days-apart | unpredictable-weeks
 retro_cadence: per-phase | close-out-only
+vcs_shape: branch-per-project | branch-per-ticket | trunk
 repo_profile_location: claude-md | dstack-file | mixed | none
 design_posture: none | utility | existing | new
 design_ground_rules_location: claude-md | design-md | dstack-file | n/a
@@ -100,6 +101,18 @@ design_ground_rules_location: claude-md | design-md | dstack-file | n/a
    recap before picking the next ticket; same-day work skips that overhead.
 4. **Retro cadence** — *per-phase checkpoints (recommended default)* / close-out only. Sets when
    `/dstack-retro` gets suggested during execution (always human-confirmed, never automatic).
+5. **Version-control shape** — how the ticket-closing step packages its work. Recommend from
+   `team_shape`, stated as reasoning: **`branch-per-project`** *(recommended for solo)* — one
+   `dstack/<project>` branch, one commit per ticket, a PR at phase boundaries or close-out;
+   **`branch-per-ticket`** *(recommended for small-team / larger-team)* — a branch and a PR
+   per ticket, because the team's review cycle is what makes re-spec reliable and a PR per
+   ticket is the diff a reviewer can actually read; **`trunk`** — commits straight onto
+   `main`, one per ticket, no PR — legitimate for solo work with no review surface, but say
+   plainly it gives up the PR as the place to read a ticket's diff. Whatever the shape, the
+   invariants hold: one ticket = one commit bundling code + re-spec + status, always with
+   `Dstack-Project` / `Dstack-Ticket` trailers, never force-pushed. Merge strategy, CI, review
+   rules, release tagging are the host repo's (`CLAUDE.md`), not dstack's — see
+   `llm-coding-workflow.md`'s "Tooling" section for the full line.
 
 ## Step 1.6 — Get grounded (source material)
 
@@ -258,10 +271,15 @@ scan/triage mechanics.
   only ever sees the *outcome* of a triage decision, never dstack's own pre-ticket bookkeeping.
 - Hand off: tell the user to run **`/dstack-ticket`** to pick the next eligible ticket
   (it confirms each choice, and scans for un-triaged findings first — see below), then enter
-  plan mode directly for that ticket's Pass-4 micro-plan.
+  plan mode directly for that ticket's Pass-4 micro-plan. Closing a ticket — re-spec, status,
+  commit, PR per `vcs_shape` — is `dstack-ticket.md` Step 7.
 - Record the Linear team/project used for *this* project in its living doc — `dstack-ticket.md`
   reads that per-project record rather than assuming a fixed team, since different dstack
   projects (or different repos) may use different Linear teams.
+- Branch names under `branch-per-ticket` come from **Linear's own branch name for the issue**
+  (the one it offers to copy — `branchName` via MCP), verbatim. Linear's auto-linking of
+  branch and PR to the issue depends on it, and its format is a Linear workspace setting, not
+  dstack's to override.
 
 ### Fork B — Local TODO.md (lighter weight / solo / autonomous) *(default for this repo today)*
 - Generate **`doc/dstack/<project>/TODO.md`** as a pure **skeleton**: a status legend

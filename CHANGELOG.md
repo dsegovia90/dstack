@@ -5,6 +5,21 @@
 _See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
 status of each item. Entries land here one PR at a time as each ships._
 
+- **`vcs_shape` prep question — and a stated line on version control.** dstack's git opinion
+  lived only in `dstack-yolo` (one branch per project, one commit per ticket, trailers);
+  `/dstack-ticket` had no close-out step at all, so the human-driven path had nothing
+  structural forcing re-spec. Now: a fifth prep question, `vcs_shape: branch-per-project |
+  branch-per-ticket | trunk`, recommended from `team_shape` (solo → per-project; team →
+  per-ticket, because a PR per ticket is the reviewable diff and the review is the re-spec
+  forcing function). `branch-per-ticket` stacks on a dependency's branch when its PR is still
+  open — `dstack-yolo` does so on its own (max two deep, then pauses for review),
+  `dstack-ticket` asks. Fork A branch names are Linear's own per-issue branch name, verbatim.
+  `/dstack-ticket` gains **Step 7 — Close the ticket** (verify → re-spec → status → one
+  commit with trailers → PR per shape) and offers it for any `[~]` ticket whose work has
+  landed but was never closed. The spec's Tooling section now states what dstack owns (the
+  unit, the trailers, the shape) and what it deliberately leaves to the host repo (merge
+  strategy, CI, review rules, release tagging). Unset → `branch-per-project`.
+
 ## 0.3.0 — 2026-08-05
 
 - **Design posture (Step 1.8)** — dstack previously had no place to affirmatively decide how

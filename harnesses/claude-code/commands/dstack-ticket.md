@@ -25,8 +25,9 @@ points for this command:
   project uses rather than assuming Linear. Do not ask the user which fork — detect it from
   the files present.
 - Prep-question answers (`team_shape`, `risk_tolerance`, `resumability_cadence`,
-  `retro_cadence`) live in the project's `notes.md` front matter — read them; they shape how
-  this command presents its pick (see Steps 4–5).
+  `retro_cadence`, `vcs_shape`) live in the project's `notes.md` front matter — read them;
+  they shape how this command presents its pick (see Steps 4–5) and how a finished ticket
+  gets closed (Step 7).
 
 ## 2. Pick the project
 
@@ -62,6 +63,12 @@ Do not proceed to Step 4 while any finding is still `status: new` — this is a 
 suggestion. If there are none, say so briefly and continue.
 
 ## 4. Detect the ticketing fork, then read the DAG
+
+**First, is anything `[~]` in-progress whose work has actually landed on disk** — the files
+its detail names exist, its verification would pass — but that never got closed? Offer to run
+Step 7 for it *before* picking anything new. An implemented-but-unclosed ticket is the
+Keystone's failure mode in progress: the re-spec hasn't happened and the commit hasn't been
+made, and every hour that passes makes the divergence harder to reconstruct.
 
 Inside the project folder, check what's actually there:
 
@@ -136,3 +143,61 @@ Then explicitly prompt the user to **confirm, correct the choice, or discuss** �
 Do not proceed to planning or implementation until they choose. Once confirmed, for Fork B,
 this is the point to actually fill in `tickets/<id>.md` (it was a stub until now) as part of
 entering the Pass-4 micro-plan.
+
+**Branch before code**, per `vcs_shape` (unset → `branch-per-project`):
+- `branch-per-project`: be on `dstack/<project>` — cut it from `main`/`master` if it doesn't
+  exist yet; otherwise just check it out.
+- `branch-per-ticket`: cut a fresh branch from `main`/`master` — Fork B: `dstack/<project>/
+  <id>-<short-slug>`; Fork A: **Linear's own branch name for the issue**, verbatim (the one it
+  offers to copy — `branchName` via MCP), so Linear auto-links the branch and PR. **If an
+  upstream dependency is done but its PR is still open**, ask the user, `AskUserQuestion`:
+  **stack on that branch** *(recommended when they're the same author and the PR is close to
+  merging — cut from the dependency's branch, open the PR against it, note "stacked on <id>
+  (#N)" in the ticket)* or **wait** *(mark this ticket `[!]` with "waiting on #N to merge"
+  and pick something else)*. Don't decide this silently — stacking is a real commitment.
+- `trunk`: stay on `main`/`master`.
+
+Never commit on `main`/`master` in either branch shape.
+
+## 7. Close the ticket — re-spec, status, commit, PR
+
+This step runs when the ticket's work is done, whenever that is — same session, or a later
+`/dstack-ticket` that found it `[~]` and landed (Step 4). It is the Keystone made structural
+for the human-driven path, exactly as `/dstack-yolo` Step 6 is for the autonomous one: one
+closing action that does all of the following, in one commit, so re-spec can't be skipped.
+
+1. **Verify first.** Run whatever proves the ticket — tests, the app. Failed verification
+   means the ticket isn't done; don't close it.
+2. **Re-spec to reality.** If what shipped diverged from the micro-plan, rewrite the ticket's
+   detail to describe what was actually built — Fork B: `tickets/<id>.md` (a "Re-spec — what
+   actually shipped" section, as in `examples/reference-project/tickets/D1.md`); Fork A: a
+   **Linear comment first** narrating original-spec → actual-shipped → why, *then* update the
+   description. Include the PR link in that comment once it exists (step 5).
+3. **Status.** Fork B: flip to `[x]` in `TODO.md` (one line — the narrative lives in the
+   ticket file) and append an Execution-log line (`- D2 done (as planned).` / `- D3 done —
+   re-spec: …`), archiving older entries past ~10 lines. Fork A: move the Linear issue to done.
+4. **Commit — one, with trailers.** Stage just this ticket's changes (code + ticket detail +
+   `TODO.md`), one commit:
+
+   ```
+   D3: build digest content chronologically, cap at 20 items
+
+   Dstack-Project: digest-emails
+   Dstack-Ticket: D3
+   ```
+
+   Same id in the trailer for Fork A (`Dstack-Ticket: KAI-123`). Never rewrite this commit
+   once pushed; never force-push. If this ticket needed more than one commit along the way,
+   the *closing* commit is the one that carries the re-spec + status — the bundle is what
+   matters, not the count.
+5. **PR, per `vcs_shape`.** `branch-per-ticket`: push and open one — `gh pr create` with the
+   commit subject as title and the ticket's re-spec section as body; base = `main` (or the
+   dependency's branch, if stacked); record the PR number in the Execution log / Linear
+   comment. `branch-per-project`: push; suggest a PR only at a phase boundary or close-out
+   (alongside the retro suggestion). `trunk`: push; no PR.
+6. **Hand back.** Say what shipped, what diverged, and — if `team_shape` is a team and the
+   shape is `branch-per-ticket` — that the next *dependent* ticket should wait for this
+   review to land rather than stack blind; the review is the re-spec forcing function.
+
+What this step deliberately does **not** decide: merge strategy, who approves, CI gates,
+release tagging. Those are the host repo's (`CLAUDE.md`); follow them, don't restate them.

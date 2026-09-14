@@ -30,7 +30,9 @@ List projects under `doc/dstack/`. If exactly one, use it (state which). If seve
 - `findings/*.md` — every finding's `status` and, for dismissed ones, the reason recorded.
 - `git log` filtered by trailer: `git log --all --grep "Dstack-Project: <project>"` (and
   `Dstack-Ticket:` per ticket if you need commit-level timing) — this is what makes project
-  history findable even after a working branch has been merged and deleted.
+  history findable even after a working branch has been merged and deleted. Under
+  `vcs_shape: branch-per-ticket`, PR numbers in the Execution log (`gh pr view <N>`) give
+  review timing — open → merged — which is the re-spec forcing function's actual latency.
 
 **Fork A (Linear, `README.md`/`notes.md` with `KAI-####` links):**
 - The doc's ticket set + DAG section for the skeleton.
