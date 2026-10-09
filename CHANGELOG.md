@@ -5,6 +5,22 @@
 _See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
 status of each item. Entries land here one PR at a time as each ships._
 
+- **`/dstack-config` and layered config** — standing preferences about how dstack should behave
+  previously had nowhere to live except being re-typed each session or hand-edited into the
+  vendored files (which `dstack-update` clobbers). New command writes plain-prose settings at
+  one of five levels — user, repo, user+repo, project, user+project — and `/dstack`,
+  `/dstack-ticket`, `/dstack-yolo`, and `/dstack-retro` load them at startup, showing what's in
+  effect grouped by level. Loading is one harness-agnostic script (`dstack-config load`, installed at
+  the repo root beside `dstack-update`); the `claude-code` adapter has the harness inject its
+  output into each command's prompt before the model runs — no per-command loading procedure. Narrower scope beats wider; personal beats shared at the same scope.
+  Shared levels are committed under `doc/dstack/`; personal levels live in `~/.dstack/`, keyed
+  by the repo's `origin` remote, so they follow a user across clones and worktrees with no
+  `.gitignore` bookkeeping. Conflicts and duplicates are checked against every other level when
+  a setting is written. Boundaries: config never relaxes a 🚧 gate or the findings scan; it
+  supplies *defaults* for the prep questions on new projects but never overrides a project's
+  recorded front matter; repo facts still belong in `CLAUDE.md`. Nothing invokes the command
+  automatically. See `llm-coding-workflow.md`'s "Config" section and the adapter's
+  `skill/dstack/config.md`.
 - **Command arguments** — `/dstack-ticket`, `/dstack-yolo`, `/dstack-retro`, and `/dstack`
   all take an optional target: a project name, a local ticket id, or (for `/dstack-ticket`)
   a Linear identifier. A project argument skips the "which project" question; a ticket

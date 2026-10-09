@@ -1,5 +1,6 @@
 ---
 description: Pick the next sensible dstack ticket from a project's DAG and confirm with the user
+allowed-tools: Bash(./dstack-config:*)
 argument-hint: "[project] [ticket-id | LINEAR-ID]"
 ---
 
@@ -9,6 +10,9 @@ You are helping pick the **next ticket to work on** for a "dstack" project, foll
 planning-first engineering process. Do this conversationally — propose, then let the user
 confirm, correct, or discuss before any code is written.
 
+## Config in effect
+
+!`./dstack-config load`
 ## 0. Read the arguments
 
 `$ARGUMENTS` may name a **project**, a **ticket**, or both (`project ticket`). Resolve in this

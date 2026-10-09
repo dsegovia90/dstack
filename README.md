@@ -110,14 +110,16 @@ produced one of them.
 
 This copies `spec/llm-coding-workflow.md` to your repo's root, the `claude-code` adapter's
 skill + commands into `.claude/skills/dstack` and `.claude/commands/`, a `dstack-update` script
-into the repo root (see Updating, below), and writes a `.dstack-version` file recording what was
+(see Updating, below) and a `dstack-config` script (see Config, below) into the repo root, and writes a `.dstack-version` file recording what was
 installed and from where.
 
 **What it deliberately does not do:** merge. It's a plain copy — re-running it overwrites
 whatever's currently in the target repo's `.claude/skills/dstack`, `.claude/commands/dstack-*.md`,
 and `dstack-update` itself. **Don't hand-edit any of those and expect it to survive an update —
 put repo-specific facts in `CLAUDE.md` instead** (see Step 1.7 in the walkthrough above), where
-install/update can't reach them and every session reads them anyway. That single move is what
+install/update can't reach them and every session reads them anyway, and put preferences about
+how dstack itself should behave in config (see Config, below), which install/update also never
+touches. That single move is what
 actually prevents the drift described in "Common mistakes" below — not a merge-aware installer.
 
 Only the `claude-code` harness adapter exists today. `harnesses/_template/README.md` describes
@@ -173,6 +175,38 @@ diff <(git show $SHA:doc/dstack/<project>/TODO.md | tr -cs '[:alnum:]' '\n' | so
 ```
 
 Any line only on one side of that diff is a word whose count changed — worth checking by hand.
+
+## Config — standing preferences for future dstack commands
+
+Anything you'd otherwise repeat at the start of every session ("never recommend Linear here",
+"branch names are `feat/<project>`", "I always work solo, gate every ticket") goes in config.
+Run **`/dstack-config`**: it asks where the setting applies and who it applies to, shows what's
+already set there, takes the change in your own words, and checks it against the other levels
+before writing. `/dstack`, `/dstack-ticket`, `/dstack-yolo`, and `/dstack-retro` each load it
+at startup and show what's in effect, grouped by where it came from.
+
+| Level | Applies to | File | Shared? |
+|---|---|---|---|
+| User | me, in every repo | `~/.dstack/config.md` | no |
+| Repo | everyone using dstack in this repo | `doc/dstack/config.md` | committed |
+| User + repo | me, in this repo | `~/.dstack/repos/<repo-id>/config.md` | no |
+| Project | everyone on one dstack project | `doc/dstack/<project>/config.md` | committed |
+| User + project | me, on one dstack project | `~/.dstack/repos/<repo-id>/projects/<project>.md` | no |
+
+Later rows win: narrower scope beats wider, and personal beats shared at the same scope.
+
+- **Personal config lives in `~/.dstack/`, not as gitignored files in the repo**, so it follows
+  you into every clone and worktree. `<repo-id>` is derived from the `origin` remote
+  (`github.com/owner/repo`); if you rename the remote, move the folder to match.
+- **Config is not `CLAUDE.md`.** Facts about the repo (stack, ports, verify commands) still
+  belong in `CLAUDE.md`, where every session reads them. Config is instructions about how
+  dstack behaves, read only by dstack commands.
+- **Config is not the prep answers.** A project's `risk_tolerance`, `team_shape`, and the rest
+  stay in its `notes.md` front matter. Config can set the *default* a new project starts with
+  (so `/dstack` stops asking), but an existing project's recorded answer always wins.
+- **Config can't relax a 🚧 human-gate or skip the findings scan**, at any level.
+- **Nothing runs `/dstack-config` for you.** It isn't part of first-run setup; a repo with no
+  config behaves exactly as it did before this existed.
 
 ## Decision guide
 

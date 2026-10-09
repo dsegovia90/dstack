@@ -10,6 +10,7 @@ description: >-
   (intake) → Pass 2 (architecture) → Pass 3
   (execution phasing + ticket DAG), then forks ticketing to either Linear (hand off to
   /dstack-ticket) or a local TODO.md (hand off to /dstack-yolo). Project-specific.
+allowed-tools: Bash(./dstack-config:*)
 ---
 
 # dstack — planning-first workflow guide
@@ -27,11 +28,17 @@ own), not here.
 Use `AskUserQuestion` for every fork below — one question at a time, with the recommended
 option first.
 
+## Config in effect
+
+!`./dstack-config load`
+
 ## Step 0 — Pick the project, then detect existing work (resume vs. fresh)
 
 If the user invoked this skill with a project name (`/dstack <project>`) that matches a folder
-under `doc/dstack/`, that's the project — state which and skip the listing below. Otherwise,
-list the project folders under `doc/dstack/`.
+  under `doc/dstack/`, that's the project — state which and skip the listing below. Otherwise,
+  list the project folders under `doc/dstack/` (a `config.md` sitting directly under
+  `doc/dstack/` is repo-level config, not a project).
+  
 - **Exactly one project folder:** assume that's the one we're working on (state which).
 - **More than one:** do **not** try to reason out which is intended — **immediately ask the
   user which project we're working on** (`AskUserQuestion`) and wait.
@@ -74,7 +81,10 @@ Skip this step entirely when resuming an existing project — these answers pers
 project's `notes.md` front matter and downstream steps read them from there. For a fresh
 project, ask each of the following (see `llm-coding-workflow.md`'s "Prep questions" section for
 the full reasoning behind each one) and write the answers into `notes.md`'s front matter before
-Pass 1 content begins:
+Pass 1 content begins. **If the config in effect (above) states a default for any of these**, don't
+ask that question — record the default, tell the user which config level it came from, and
+move on; they can still overrule it on the spot. The same applies to `design_posture` in Step
+1.8. Ask only what config leaves open:
 
 ```yaml
 ---
@@ -326,4 +336,7 @@ and `TODO.md` + `tickets/` + `findings/` if Fork B). Tell the user the exact nex
   launch;
 - **`/dstack-retro`** is available any time (and will be suggested automatically at phase
   boundaries or close-out per the `retro_cadence` answer) to read back the project's real
-  history and surface what, if anything, should change about how future projects run.
+  history and surface what, if anything, should change about how future projects run;
+- **`/dstack-config`** is where standing preferences go — anything they found themselves
+  wanting dstack to always (or never) do, for themselves or the whole repo, rather than
+  repeating it next session.
