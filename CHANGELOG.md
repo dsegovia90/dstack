@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 — unreleased
+
+_See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
+status of each item. Entries land here one PR at a time as each ships._
+
 ## 0.3.0 — 2026-08-05
 
 - **Design posture (Step 1.8)** — dstack previously had no place to affirmatively decide how
