@@ -1,5 +1,6 @@
 ---
 description: Autonomously work a local TODO.md ticket DAG — pick, plan-gate, implement, verify, re-spec, and loop; set aside blockers and switch to parallel work; pause before overrunning a blocker
+argument-hint: "[project] [ticket-id]"
 ---
 
 # dstack-yolo: autonomous execution loop (local TODO.md)
@@ -41,11 +42,26 @@ and find parallel work rather than stopping — but you stop *cleanly* when stop
   and deleted.
 - **Pause before going too far** (see Stop conditions). Don't thrash; don't overrun a blocker.
 
+## 0. Read the arguments
+
+`$ARGUMENTS` may name a **project**, a **ticket**, or both (`project ticket`). Same resolution
+rules as `dstack-ticket.md` Step 0: a folder name under `doc/dstack/` selects the project; a
+local ticket id found in exactly one project's `TODO.md` selects that project **and** makes the
+ticket the **starting point** for the loop — "start here, then continue as normal." Ambiguous
+→ ask; nothing matched → say so and fall through. This command is Fork B only, so a Linear
+identifier is not a valid argument here — point the user at `/dstack-ticket` instead.
+
+**A starting ticket skips no gate.** The findings scan (Step 2) still runs first. The ticket
+still has to be on the eligible frontier (Step 3) — every upstream dependency genuinely done,
+checked against the code on disk, not 🚧-gated. If it isn't, say which dependency is unmet
+and pick from the frontier as normal. If it is, take it first, then loop as usual from Step 2.
+
 ## 1. Locate the project + read the DAG
 
 Find the project's `doc/dstack/<project>/TODO.md` (and its sibling living doc `notes.md` for
-architectural context and the prep-question front matter). If exactly one project has a
-`TODO.md`, use it (state which). If several, ask which one.
+architectural context and the prep-question front matter). If Step 0 selected a project, use
+it. Otherwise, if exactly one project has a `TODO.md`, use it (state which). If several, ask
+which one.
 
 Parse from `TODO.md`:
 - the **ticket set** with statuses (`[ ]` open · `[~]` in-progress · `[x]` done · `[!]`

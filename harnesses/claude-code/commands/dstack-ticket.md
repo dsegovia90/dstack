@@ -1,5 +1,6 @@
 ---
 description: Pick the next sensible dstack ticket from a project's DAG and confirm with the user
+argument-hint: "[project] [ticket-id | LINEAR-ID]"
 ---
 
 # dstack: choose the next ticket
@@ -7,6 +8,32 @@ description: Pick the next sensible dstack ticket from a project's DAG and confi
 You are helping pick the **next ticket to work on** for a "dstack" project, following our
 planning-first engineering process. Do this conversationally — propose, then let the user
 confirm, correct, or discuss before any code is written.
+
+## 0. Read the arguments
+
+`$ARGUMENTS` may name a **project**, a **ticket**, or both (`project ticket`). Resolve in this
+order, stopping at the first rule that matches:
+
+1. **Nothing given** → the rest of this command runs exactly as written below.
+2. **A folder name under `doc/dstack/`** → that project is selected; skip the "which project"
+   question in Step 2.
+3. **A local ticket id** (`D3`, `T12` — whatever ids the project's `TODO.md` uses) found in
+   exactly one project's `TODO.md` → that project is selected **and** the ticket becomes the
+   **proposed pick**. If the id appears in more than one project's `TODO.md`, ask which.
+4. **A Linear identifier** (`KAI-123` — uppercase team key, dash, number) → Fork A. Find the
+   project whose living doc links that issue; if none does, ask which project. The issue's
+   live state comes from Linear MCP in Step 4 as usual — if MCP isn't available, say so
+   plainly rather than guessing from the checkbox.
+5. **Nothing matched** → say what was tried ("no project or ticket named `foo`") and fall
+   through to the normal flow. Don't invent a match.
+
+**A proposed ticket moves nothing that's a gate.** It still goes through the findings scan
+(Step 3) first, and its dependencies are still checked — against the DAG *and* the code on
+disk (Step 4). If an upstream dependency isn't genuinely done, say which one and present the
+eligible frontier instead, exactly as if no argument had been given. If it *is* eligible,
+present it in Step 6 with "you asked for this one" as the reason and the rest of the frontier
+as alternatives — and still wait for confirmation. The argument saves a question; it never
+skips a check.
 
 ## 1. Internalize the process
 
@@ -30,7 +57,8 @@ points for this command:
 
 ## 2. Pick the project
 
-List the projects under **`doc/dstack/`** (each subdirectory is a project).
+If Step 0 already selected a project, use it (state which) and move on. Otherwise list the
+projects under **`doc/dstack/`** (each subdirectory is a project).
 
 - If there is exactly **one**, use it (state which one you're using).
 - If there are **multiple**, ask the user which project we're working on. Do not guess.
@@ -98,7 +126,10 @@ Inside the project folder, check what's actually there:
 ## 5. Determine the next sensible ticket
 
 From the DAG, compute the **eligible frontier**: open tickets whose every upstream dependency
-is done. Among those, prefer:
+is done. If Step 0 proposed a ticket and it's on the frontier, it's the pick — skip the
+ranking below but still list the rest of the frontier as alternatives in Step 6. If it's
+*not* on the frontier, say why (which dependency is unmet, or it's already done/blocked) and
+rank the frontier as normal. Among frontier tickets, prefer:
 
 1. The **lowest topological phase** (P0 before P1, etc.).
 2. **Unblocking power** — a ticket that unblocks the most downstream work breaks ties.

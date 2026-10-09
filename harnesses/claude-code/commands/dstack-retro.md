@@ -1,5 +1,6 @@
 ---
 description: Produce a retrospective on a dstack project's real history — completions vs. plan, re-specs, blockers, findings, and what it suggests about improving the process itself
+argument-hint: "[project]"
 ---
 
 # dstack-retro: read the project's real history, not the plan
@@ -17,7 +18,9 @@ evidence for whether `llm-coding-workflow.md` itself should change.
 
 ## 1. Pick the project
 
-List projects under `doc/dstack/`. If exactly one, use it (state which). If several, ask.
+If `$ARGUMENTS` names a folder under `doc/dstack/`, that's the project — state which and move
+on. Otherwise list projects under `doc/dstack/`. If exactly one, use it (state which). If
+several, ask. An argument that matches nothing: say so, then ask.
 
 ## 2. Gather sources — detect the fork first
 
