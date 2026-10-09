@@ -7,6 +7,7 @@ retro_cadence: per-phase
 repo_profile_location: mixed
 design_posture: existing
 design_ground_rules_location: claude-md
+diagrams: mermaid
 last_session_at: 2026-06-14T09:00:00-06:00
 ---
 
@@ -29,6 +30,9 @@ longer and more specific than this, but the structure and section names are the 
   two dimensions live in [`repo-profile.md`](repo-profile.md) in this folder instead
   (`repo_profile_location: mixed`, front matter above). Pass 2's Data model and Component
   architecture below were grounded against both sources.
+- **Diagrams (prep question 5):** `diagrams: mermaid` (front matter above). Nothing was
+  drawn: Pass 1's MVP surface is a short list with no multi-step user flow, and Pass 2's
+  data model is two tables with one foreign key — each shorter as prose than as a picture.
 - **Step 1.8 — design ground rules:** the host app already has an established component library
   and styling conventions, documented in `CLAUDE.md`'s "Conventions" section — `design_posture:
   existing`, `design_ground_rules_location: claude-md` (front matter above). No new design

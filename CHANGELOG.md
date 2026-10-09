@@ -13,6 +13,15 @@ status of each item. Entries land here one PR at a time as each ships._
   with every dependency verified against the code on disk — otherwise the command says which
   dependency is unmet and falls back to its normal pick. See `dstack-ticket.md` Step 0.
 
+- **Diagrams prep question** — a fifth prep question, `diagrams: mermaid | ascii | none`
+  (default `mermaid`), sets the notation for an *optional* picture where a shape is hard to
+  read as prose — a user flow in Pass 1, a data model, request path, component map,
+  infrastructure layout, or state machine in Pass 2. The rule is "draw when the picture is
+  shorter than the paragraph it replaces," and the prose stays the decision. `SKILL.md`
+  carries a short default list of when to draw; a project or user can add or remove cases
+  with plain standing instructions. The Pass 3 DAG is unchanged — this question doesn't
+  touch it.
+
 ## 0.3.0 — 2026-08-05
 
 - **Design posture (Step 1.8)** — dstack previously had no place to affirmatively decide how

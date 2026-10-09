@@ -59,7 +59,10 @@ produced one of them.
    model, components, the "how" — grounded against the repo profile from step 2 plus a narrow,
    scoped look at just the area this feature touches, not a full-repo sweep. Ticket grooming
    falls out of this pass as a side effect (see that doc's "Rough ticket-shaped seams" list) —
-   it's not a separate step.
+   it's not a separate step. In Pass 1 or Pass 2, where a shape is hard to read as prose (a
+   user flow, code structure, a data model, infrastructure), the skill offers a diagram in the
+   notation the `diagrams` prep answer names — the reference project chose `mermaid` but drew
+   nothing, because every shape it had was shorter as a paragraph.
 5. **Pass 3 — Execution phasing + DAG:** the groomed seams become real tickets (`D1`–`D5` in
    the reference project), chained by `blocked-by`/`blocks` into a dependency graph, with roots
    and topological phases called out. See that doc's "Pass 3" section for the diagram.
@@ -196,6 +199,16 @@ Any line only on one side of that diff is a word whose count changed — worth c
 - **Retro cadence:** "per-phase" if the project has more than a couple of phases; "close-out
   only" for something small enough that a mid-project checkpoint would just be close-out early.
 
+**Do I want diagrams (prep question 5)?**
+- **`mermaid` (recommended).** Renders on GitHub, in Linear, and in most editors. The skill
+  offers a picture only where one is shorter than the paragraph it replaces.
+- **`ascii`** if the doc is mostly read in a terminal.
+- **`none`** if you want every section as prose.
+
+`SKILL.md` has a short default list of when to draw (user flows, code structure, data models,
+request paths, infrastructure, state machines). A standing instruction from you or the project
+can add or remove cases.
+
 **What design posture should I pick (Step 1.8)?**
 - **Has a visual surface, and a system already governs it (brand guidelines, component
   library, `DESIGN.md`) → "existing."** Point Pass 2 at it; don't re-derive it.
@@ -248,8 +261,8 @@ start and otherwise trusted. Downstream commands will pick up the new value on t
 predates the four prep questions, or one where only some got backfilled)? Every command falls
 back to that question's stated recommended default from Step 1.5 rather than treating it as an
 error: `team_shape` → `solo`, `risk_tolerance` → `gate-every-ticket`, `resumability_cadence` →
-`same-day` (skip the recap), `retro_cadence` → `per-phase`. This is a deliberate default, not a
-bug — see "Migrating a repo that already had dstack" above for backfilling it properly instead
+`same-day` (skip the recap), `retro_cadence` → `per-phase`, `diagrams` → `mermaid`. This is a
+deliberate default, not a bug — see "Migrating a repo that already had dstack" above for backfilling it properly instead
 of relying on the fallback indefinitely.
 
 **What happens if I never run `/dstack-retro`?** Nothing breaks — ticket-level re-spec and
