@@ -59,7 +59,10 @@ produced one of them.
    model, components, the "how" — grounded against the repo profile from step 2 plus a narrow,
    scoped look at just the area this feature touches, not a full-repo sweep. Ticket grooming
    falls out of this pass as a side effect (see that doc's "Rough ticket-shaped seams" list) —
-   it's not a separate step.
+   it's not a separate step. In Pass 1 or Pass 2, where a shape is hard to read as prose (a
+   user flow, code structure, a data model, infrastructure), the skill offers a diagram in the
+   notation the `diagrams` prep answer names — the reference project chose `mermaid` but drew
+   nothing, because every shape it had was shorter as a paragraph.
 5. **Pass 3 — Execution phasing + DAG:** the groomed seams become real tickets (`D1`–`D5` in
    the reference project), chained by `blocked-by`/`blocks` into a dependency graph, with roots
    and topological phases called out. See that doc's "Pass 3" section for the diagram.
@@ -70,7 +73,11 @@ produced one of them.
    stubs for every ticket right away so nothing links to nowhere.
 7. **Pick and work a ticket:** the next-ticket command scans for untriaged `findings/` first
    (a hard gate — see below), computes the eligible frontier (open tickets with every
-   dependency done), and presents its pick with reasoning and alternatives. Once confirmed, a
+   dependency done), and presents its pick with reasoning and alternatives. If you already
+   know what you want, say so up front — `/dstack-ticket D3`, `/dstack-ticket digest-emails`,
+   or a Linear id like `/dstack-ticket KAI-123` — and it skips the "which project" question
+   and proposes that ticket; the findings gate and the dependency check still run either
+   way (`/dstack-yolo D3` and `/dstack-retro digest-emails` take the same form). Once confirmed, a
    plan-mode micro-plan happens before any code — cadence depends on the `risk_tolerance`
    answer. Compare `tickets/D1.md`'s "Scope (as planned)" section to its "Re-spec — what
    actually shipped" section: the plan changed once real implementation surfaced a wrinkle
@@ -226,6 +233,16 @@ Later rows win: narrower scope beats wider, and personal beats shared at the sam
 - **Retro cadence:** "per-phase" if the project has more than a couple of phases; "close-out
   only" for something small enough that a mid-project checkpoint would just be close-out early.
 
+**Do I want diagrams (prep question 5)?**
+- **`mermaid` (recommended).** Renders on GitHub, in Linear, and in most editors. The skill
+  offers a picture only where one is shorter than the paragraph it replaces.
+- **`ascii`** if the doc is mostly read in a terminal.
+- **`none`** if you want every section as prose.
+
+`SKILL.md` has a short default list of when to draw (user flows, code structure, data models,
+request paths, infrastructure, state machines). A standing instruction from you or the project
+can add or remove cases.
+
 **What design posture should I pick (Step 1.8)?**
 - **Has a visual surface, and a system already governs it (brand guidelines, component
   library, `DESIGN.md`) → "existing."** Point Pass 2 at it; don't re-derive it.
@@ -278,8 +295,8 @@ start and otherwise trusted. Downstream commands will pick up the new value on t
 predates the four prep questions, or one where only some got backfilled)? Every command falls
 back to that question's stated recommended default from Step 1.5 rather than treating it as an
 error: `team_shape` → `solo`, `risk_tolerance` → `gate-every-ticket`, `resumability_cadence` →
-`same-day` (skip the recap), `retro_cadence` → `per-phase`. This is a deliberate default, not a
-bug — see "Migrating a repo that already had dstack" above for backfilling it properly instead
+`same-day` (skip the recap), `retro_cadence` → `per-phase`, `diagrams` → `mermaid`. This is a
+deliberate default, not a bug — see "Migrating a repo that already had dstack" above for backfilling it properly instead
 of relying on the fallback indefinitely.
 
 **What happens if I never run `/dstack-retro`?** Nothing breaks — ticket-level re-spec and
@@ -291,6 +308,14 @@ reads the accumulated history as a set.
 harness adapter is built. The spec itself (`spec/llm-coding-workflow.md`) is deliberately
 harness-agnostic prose with no tool-specific syntax, so a new adapter is meant to be a thin
 translation layer, not a rewrite. See `harnesses/_template/README.md` if you want to build one.
+
+**Can I skip the "which project / which ticket" questions?** Yes — every command takes an
+optional argument: `/dstack <project>`, `/dstack-ticket <project | ticket-id | LINEAR-ID>`,
+`/dstack-yolo <project | ticket-id>`, `/dstack-retro <project>`. A ticket argument is a
+*proposal*, not an override: the findings scan still runs first, and the ticket still has to
+be on the eligible frontier (every dependency genuinely done, checked against the code on
+disk). If it isn't, the command says which dependency is unmet and falls back to the normal
+pick. An argument that matches nothing is reported, not guessed at.
 
 **Does this work for a bug fix or refactor, not just a new feature?** Yes — the planning skill
 asks what kind of work it is up front and compresses the three passes sensibly for anything

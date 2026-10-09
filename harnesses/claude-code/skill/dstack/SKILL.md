@@ -34,8 +34,11 @@ option first.
 
 ## Step 0 — Pick the project, then detect existing work (resume vs. fresh)
 
-First, list the project folders under `doc/dstack/` (a `config.md` sitting directly under
-`doc/dstack/` is repo-level config, not a project).
+If the user invoked this skill with a project name (`/dstack <project>`) that matches a folder
+  under `doc/dstack/`, that's the project — state which and skip the listing below. Otherwise,
+  list the project folders under `doc/dstack/` (a `config.md` sitting directly under
+  `doc/dstack/` is repo-level config, not a project).
+  
 - **Exactly one project folder:** assume that's the one we're working on (state which).
 - **More than one:** do **not** try to reason out which is intended — **immediately ask the
   user which project we're working on** (`AskUserQuestion`) and wait.
@@ -93,6 +96,7 @@ retro_cadence: per-phase | close-out-only
 repo_profile_location: claude-md | dstack-file | mixed | none
 design_posture: none | utility | existing | new
 design_ground_rules_location: claude-md | design-md | dstack-file | n/a
+diagrams: mermaid | ascii | none
 ---
 ```
 
@@ -109,6 +113,9 @@ design_ground_rules_location: claude-md | design-md | dstack-file | n/a
    recap before picking the next ticket; same-day work skips that overhead.
 4. **Retro cadence** — *per-phase checkpoints (recommended default)* / close-out only. Sets when
    `/dstack-retro` gets suggested during execution (always human-confirmed, never automatic).
+5. **Diagrams** — *Mermaid (recommended default)* / ASCII / none. The notation for optional
+   pictures in Pass 1 and Pass 2 (see "Diagrams" under Step 2). Mermaid renders in GitHub,
+   Linear, and most editors; ASCII suits docs mostly read in a terminal; none means prose only.
 
 ## Step 1.6 — Get grounded (source material)
 
@@ -215,6 +222,21 @@ blind; otherwise ask directly:
   seams into tickets chained by dependency (`blocked-by` / `blocks`), with roots and
   topological phases called out. **Keep this ticket set to one-liners in the doc itself** —
   full scope/files/acceptance per ticket is generated in Step 3, not written here.
+
+**Diagrams (Pass 1 and Pass 2).** Where a section has a shape that's hard to read as prose,
+**offer** to draw it in the notation `diagrams` names (unset → Mermaid; `none` → don't offer).
+Draw only when the picture is shorter than the paragraph it replaces. Default cases:
+
+- a user flow with branches or more than a few steps → `flowchart`
+- code structure / component boundaries — who calls whom → `flowchart LR`
+- a data model with three or more related tables → `erDiagram`
+- a request path with several hops → `sequenceDiagram`
+- infrastructure — services, queues, stores, and how they connect → `flowchart LR`
+- a lifecycle with named states → `stateDiagram-v2`
+
+This list is a starting point. Any standing instruction from the user or project that adds,
+removes, or changes a case wins over it. The prose is the decision; the picture is a
+rendering of it — if they disagree, the prose wins and the picture gets redrawn.
 
 Drive each pass by **asking guiding questions**, then writing the result into the *same*
 living doc (never spawn parallel files for passes — it is one enriched artifact). Reference

@@ -18,6 +18,11 @@ A new adapter needs to provide, in whatever native form the target harness uses:
   (pick next ticket), `dstack-yolo.md` (autonomous loop with plan-gating), and `dstack-retro.md`
   (retrospective). These can be separate commands, one parameterized command, or built into the
   main planning flow — whatever's idiomatic for the harness.
+- **An optional target argument on each command** — a project name, or a ticket id, so a
+  user who already knows what they want doesn't answer a question they've already answered.
+  The argument selects or *proposes*; it must never bypass the findings scan or the
+  dependency check — see `claude-code/commands/dstack-ticket.md` Step 0 for the resolution
+  order and the "moves nothing that's a gate" rule.
 - **A way to enter a plan-mode-equivalent pause** before implementing a ticket — some point
   where the harness proposes a technical approach and waits for explicit human sign-off before
   writing code. If the harness has no such built-in mode, the adapter needs to simulate one

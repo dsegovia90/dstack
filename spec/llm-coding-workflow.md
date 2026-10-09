@@ -97,6 +97,14 @@ Where a ticketing system with its own navigable detail view already exists, it *
 
 ---
 
+## Diagrams: where a picture beats a paragraph
+
+Some of what the passes decide is *shaped* — a user flow, how the code is laid out, a data model, how infrastructure connects, a lifecycle with named states. Prose describes these; a diagram *shows* them, and a later reader (or a later session) takes it in at a glance instead of rebuilding the shape from sentences. The rule for *when*: **draw when the picture is shorter than the paragraph it replaces.** Which cases are worth a picture differs by person and project, so the set is a default to adjust, not a fixed list. The notation is a per-project choice made once (see Prep questions).
+
+A diagram is a *rendering* of decisions the prose already made, not a place decisions live. If the picture and the prose disagree, the prose wins and the picture gets redrawn.
+
+---
+
 ## Grounding: a durable repo profile vs. scoped per-feature research
 
 A codebase's **slow-changing facts** — stack, conventions, directory layout, auth pattern, domain model overview, test framework — cost nothing to get wrong once and expensive to keep re-deriving. Left unhandled, this becomes a choice between two bad defaults: skip grounding entirely (Pass 2 architects blind, disconnected from what's actually on disk) or re-research the whole codebase before every feature (expensive, and mostly re-answering questions whose answers haven't moved).
@@ -264,6 +272,7 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 - **Risk tolerance for autonomous execution — how much should the agent do without pausing for sign-off?** Ranges from gating every ticket before any code is written (the safe default) to full autonomy bounded only by hard gates on genuinely irreversible actions (migrations against live data, secrets/credential changes, destructive operations, external infra). Hard gates are never something a risk-tolerance setting relaxes — they exist because some actions are categorically different from "got the ticket wrong," not because the default is overcautious.
 - **Resumability cadence — same day, days apart, or unpredictable/weeks between sessions?** A return after weeks needs real "since you were last here" scaffolding — a recap of what changed since the last touch — that a same-day return doesn't, and shouldn't pay the overhead of. Sized wrong in either direction, this either buries a frequent user in recap noise or leaves an infrequent one to reconstruct context from scratch every time.
 - **Retro cadence — checkpoints at natural phase boundaries, or only at project close-out?** Sets when the retrospective pass above actually fires as a suggestion.
+- **Diagrams — Mermaid, ASCII, or prose only?** Sets the notation for the optional pictures above. Mermaid renders in GitHub, Linear, and most editors; ASCII is for docs mostly read in a terminal; "none" means every section stays prose.
 
 ---
 
