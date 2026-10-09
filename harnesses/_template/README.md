@@ -22,11 +22,21 @@ A new adapter needs to provide, in whatever native form the target harness uses:
   where the harness proposes a technical approach and waits for explicit human sign-off before
   writing code. If the harness has no such built-in mode, the adapter needs to simulate one
   (state the plan, wait for confirmation) rather than skipping the gate.
+- **A way to get config into every command, and a command to edit it.** The logic is not the
+  adapter's to write: `dstack-config` (installed at the target repo's root for every harness)
+  resolves where each level lives and prints everything that's set, with the rules for applying
+  it. An adapter only decides how `./dstack-config load`'s output reaches each command at
+  startup — `claude-code/` has the harness run it and splice the output into the prompt before
+  the model sees it; a harness with no prompt-time execution makes "run `./dstack-config load`
+  and follow its output" the command's first step instead. It also needs the equivalent of
+  `dstack-config.md`, the one command that writes config (using `./dstack-config paths`). The
+  file locations (`~/.dstack/…`, `doc/dstack/config.md`, `doc/dstack/<project>/config.md`)
+  are shared, so config written under one harness is read under another.
 - **Whatever the harness needs for `AskUserQuestion`-style forks** — a way to present a
   recommended option plus alternatives and wait for a choice, used throughout Pass 1–3 and the
   ticketing-fork decision.
 
 None of the conventions themselves (`doc/dstack/<project>/notes.md` + `TODO.md` + `tickets/` +
-`findings/` + `retros/`, the front-matter shape, the commit-trailer convention) are
+`findings/` + `retros/` + `config.md`, the front-matter shape, the commit-trailer convention) are
 harness-specific — a new adapter should point at the same files and conventions the
 `claude-code/` adapter uses, just invoked through different mechanics.

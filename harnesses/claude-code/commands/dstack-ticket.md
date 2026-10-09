@@ -1,5 +1,6 @@
 ---
 description: Pick the next sensible dstack ticket from a project's DAG and confirm with the user
+allowed-tools: Bash(./dstack-config:*)
 ---
 
 # dstack: choose the next ticket
@@ -7,6 +8,10 @@ description: Pick the next sensible dstack ticket from a project's DAG and confi
 You are helping pick the **next ticket to work on** for a "dstack" project, following our
 planning-first engineering process. Do this conversationally — propose, then let the user
 confirm, correct, or discuss before any code is written.
+
+## Config in effect
+
+!`./dstack-config load`
 
 ## 1. Internalize the process
 

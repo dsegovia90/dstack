@@ -267,6 +267,28 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 
 ---
 
+## Config — standing instructions, layered by scope
+
+Prep questions capture what's true of *one project*. A different kind of preference outlives any single project: how a particular person likes this process to run everywhere, what a repo's team has agreed on, what one project needs that its neighbors don't. Left with nowhere to live, those get re-typed at the start of every session, or — worse — hand-edited into the installed process files, where the next update silently deletes them.
+
+**Config** is where they go: plain-prose standing instructions about how *this process itself* should behave, written once and loaded by every later command in their scope. The scopes are the full grid of *who* (just me / everyone) × *where* (everywhere / this repo / one project), minus "everyone, everywhere" — that cell is this document.
+
+- **User** — me, in every repo. Lives in the user's home directory.
+- **Repo** — everyone running this process in the repo. Committed, alongside the project folders.
+- **User + repo** — me, in this repo. Lives in the home directory, keyed by the repo's identity.
+- **Project** — everyone working one project. Committed, inside that project's folder.
+- **User + project** — me, on one project. Lives in the home directory, keyed by repo and project.
+
+Three rules keep this from turning into a junk drawer:
+
+- **Shared config is committed; personal config never enters the repo.** Personal levels live in the home directory rather than as ignored files in the working tree, so they follow the person into every clone and worktree of the same repo and need no ignore-file bookkeeping. The cost is that they're keyed by the repo's identity (its remote), so a renamed remote needs its personal config moved by hand.
+- **Narrower beats wider, and personal beats shared at the same scope** — user → repo → user+repo → project → user+project, later wins. Every command that loads config shows what's in effect grouped by the level it came from, so an override is visible rather than silent; and conflicts are checked when a setting is *written*, against every other level, not discovered later at execution time.
+- **Config has a floor and two neighbors it doesn't replace.** No level relaxes a hard gate (irreversible actions, the findings scan) — same as risk tolerance. It doesn't override a project's recorded prep answers; it only supplies their *defaults* when a new project is created, and the project's own record wins from then on. And it isn't where facts about the codebase go — those belong in the repo profile (see Grounding), read by every session, not only by this process.
+
+Resolving where each level lives and assembling what's set is done by one script shipped with the process, not re-derived by the agent or re-described in each command — every command starts from that script's output. Config is edited through its own command and never as a side effect of another one — a planning or execution session reads it, shows it, and follows it, but doesn't quietly add to it.
+
+---
+
 ## Tooling
 
 - **Model / interface:** an LLM coding agent, using **plan mode** (or the harness's equivalent) for the per-ticket micro-plan.
@@ -298,3 +320,4 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 15. **Split grounding by volatility.** Durable repo facts prefer `CLAUDE.md` and get patched, not regenerated; feature-specific facts stay scoped and fresh every single time.
 16. **Design posture is a decision, not a default.** "No visual surface," "deliberately utility-only," "follow the existing system," and "establish one now" are all legitimate answers — the failure mode is never picking one and letting Pass 2 invent it silently.
 17. **Open questions are a ledger with required evidence, not a paragraph of good intentions.** Resolved needs a citation, deferred needs a named target, dropped needs a reason — and the next agent to touch the doc re-checks the citation before trusting the label.
+18. **Standing preferences get a home with a scope.** Who a setting applies to and where are explicit, layered, and visible at load time — not re-typed every session, and never hand-edited into the installed process files.
