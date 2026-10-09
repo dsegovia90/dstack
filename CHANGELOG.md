@@ -5,6 +5,19 @@
 _See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
 status of each item. Entries land here one PR at a time as each ships._
 
+- **`/dstack-feedback` + a findings-style gate** — a note about dstack *itself* (a wrong or
+  ambiguous instruction, friction, an idea) had nowhere to go except memory or a retro weeks
+  later. `/dstack-feedback <note>` now writes one file to the repo-level
+  `doc/dstack/feedback/` with `status: new`, the installed version/commit, and the
+  project/command/ticket in flight — no question asked, no network, so logging costs nothing.
+  Every ticket pick (`dstack-ticket` Step 3, `dstack-yolo` Step 2) then gates pending notes
+  right after the findings scan: each is **filed** as a GitHub issue on the dstack repo via
+  `gh` (on the user's say-so, per note) or **dropped** with a recorded reason. Agents are
+  told, in every command, to log friction with the instructions the moment they hit it and
+  never to file on their own. `install.sh` now records `repo=` in `.dstack-version` so the
+  command knows where to file (a fork stays a fork). `dstack-retro` reads feedback notes as
+  a source. See `llm-coding-workflow.md`'s new "Feedback — the fast lane" section.
+
 ## 0.3.0 — 2026-08-05
 
 - **Design posture (Step 1.8)** — dstack previously had no place to affirmatively decide how

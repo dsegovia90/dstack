@@ -74,6 +74,14 @@ rationale) before computing the eligible frontier in Step 3. Do not skip a proje
 iteration past this step even if it feels like overhead — an untriaged finding is exactly the
 kind of thing this step exists to catch before it becomes an orphaned file.
 
+**Then the feedback gate** — repo-level `doc/dstack/feedback/`, notes about dstack itself
+(see `dstack-feedback.md`). Any `status: new` note must be **filed** as a GitHub issue on the
+dstack repo or **dropped** with a reason before you continue; the user picks, per note. This
+is the one step in the loop that needs the human even at `full-autonomy-except-gates` —
+filing is outward-facing. If there are `new` notes and the human isn't available, leave them
+`new`, say so in the status report, and continue; don't drop them on your own to clear the
+gate, and never file on your own.
+
 ## 3. Compute the eligible frontier
 
 Eligible = **open** tickets whose **every** upstream dependency is genuinely **done**, and
@@ -160,6 +168,11 @@ Then return to **Step 2** for the next ticket (findings scan first, every loop).
   with what you tried, and move on or pause.
 - **Context rot** (the two tells: it stops understanding the ask, or it rebuilds something
   already done this session): stop, recommend a **cold restart** from the doc + code on disk.
+- **Friction with these instructions** — a step that's ambiguous for this project, a case
+  the loop doesn't cover, a gate that fired when it shouldn't have (or didn't when it
+  should): write a `doc/dstack/feedback/` note right then (`dstack-feedback.md` Mode 1, with
+  the project/command/ticket context filled in) and keep going. Don't work around it
+  silently, and don't file the issue yourself — the gate in Step 2 asks the human.
 
 ## 8. Stop conditions — pause cleanly and surface
 

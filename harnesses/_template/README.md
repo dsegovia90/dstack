@@ -15,8 +15,9 @@ A new adapter needs to provide, in whatever native form the target harness uses:
   any harness that can read/write files in the target repo can do the same, since none of that
   state is Claude-Code-specific.
 - **A way to run a command against a chosen project** — the equivalents of `dstack-ticket.md`
-  (pick next ticket), `dstack-yolo.md` (autonomous loop with plan-gating), and `dstack-retro.md`
-  (retrospective). These can be separate commands, one parameterized command, or built into the
+  (pick next ticket), `dstack-yolo.md` (autonomous loop with plan-gating), `dstack-retro.md`
+  (retrospective), and `dstack-feedback.md` (log a note about the toolkit, and gate pending
+  notes into "filed upstream" or "dropped with a reason"). These can be separate commands, one parameterized command, or built into the
   main planning flow — whatever's idiomatic for the harness.
 - **A way to enter a plan-mode-equivalent pause** before implementing a ticket — some point
   where the harness proposes a technical approach and waits for explicit human sign-off before

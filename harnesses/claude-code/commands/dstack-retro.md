@@ -28,6 +28,9 @@ List projects under `doc/dstack/`. If exactly one, use it (state which). If seve
 - `tickets/*.md` — every ticket's re-spec narrative (this is where the real divergence detail
   lives — read all of them, not just the open ones).
 - `findings/*.md` — every finding's `status` and, for dismissed ones, the reason recorded.
+- `doc/dstack/feedback/*.md` (repo-level, not per project) — notes about dstack itself logged
+  during this project's window, by `context:` line. Filed vs. dropped, and the dropped
+  reasons: a dropped note whose reason doesn't hold up in hindsight is itself an observation.
 - `git log` filtered by trailer: `git log --all --grep "Dstack-Project: <project>"` (and
   `Dstack-Ticket:` per ticket if you need commit-level timing) — this is what makes project
   history findable even after a working branch has been merged and deleted.
@@ -77,3 +80,9 @@ file, if present, records which install it came from). Offer to draft the excerp
 not write into the toolkit repo yourself** — that file is deliberately human-curated, pasted in
 deliberately after the human decides a pattern is real across more than this one project, not
 auto-merged by this command.
+
+For each process observation that's a concrete, actionable thing about dstack (as opposed to
+about this project), also offer to write it as a `doc/dstack/feedback/` note
+(`dstack-feedback.md` Mode 1) so it reaches the maintainer through the gate instead of only
+through this retro file. Same rule as everywhere: log on the user's yes, never file the issue
+yourself.

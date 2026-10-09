@@ -45,7 +45,9 @@ and/or a `TODO.md`.
   relevant step below. Before treating the doc as settled, run the **open questions ledger's
   required confirmation pass** (see Step 2) over any row still carrying a "Resolved" or
   "Deferred" status from a prior session — a resumed session is exactly the kind of consuming
-  agent that doesn't get to trust an inherited label without checking it.
+  agent that doesn't get to trust an inherited label without checking it. Also scan
+  `doc/dstack/feedback/` for any note still `status: new` and run the feedback gate
+  (`dstack-feedback.md` Mode 2) before going further — file or drop, same as a finding.
 - **If none:** proceed to Step 1.
 
 > Convention for this repo: each project gets its own folder `doc/dstack/<project>/` containing
@@ -305,4 +307,10 @@ and `TODO.md` + `tickets/` + `findings/` if Fork B). Tell the user the exact nex
   launch;
 - **`/dstack-retro`** is available any time (and will be suggested automatically at phase
   boundaries or close-out per the `retro_cadence` answer) to read back the project's real
-  history and surface what, if anything, should change about how future projects run.
+  history and surface what, if anything, should change about how future projects run;
+- **`/dstack-feedback <note>`** logs a one-line note about dstack *itself* — a step that
+  asked something already answered, a case these instructions don't cover — the moment it
+  happens, at no cost. Every ticket pick gates those notes (file upstream or drop), so they
+  never sit. **This applies to you, the agent, too:** if you hit friction with these
+  instructions while running this skill, write the note now (`dstack-feedback.md` Mode 1) —
+  don't work around it silently, and don't file the issue yourself; the gate asks the human.

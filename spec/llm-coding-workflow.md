@@ -256,6 +256,19 @@ A retrospective is always a **human-confirmed suggestion**, never something that
 
 ---
 
+## Feedback — the fast lane
+
+The retrospective is deliberate and periodic. Most friction with the *process itself* doesn't arrive on that schedule — it arrives mid-ticket, as a one-line thought ("this step asked me something the front matter already answered," "there's no case for X here") that is sharp for about a minute and gone by the retro. Left to memory, it is lost; left as a comment in a ticket, it's invisible to whoever maintains the process. Either way, it's the same shape as an untracked finding — a real observation with no forced path to where it matters — just aimed at the *toolkit* instead of the codebase.
+
+The fix is the same shape too: **write it down the moment it happens, in a place the process treats as unfinished business, and gate it.**
+
+1. **Log it immediately, cheaply.** One note, one file, with `status: new`, the toolkit version it was observed against, and where you were (project, command, ticket). No question asked at logging time — a note that costs a decision to write won't get written. This applies to the agent as much as the human: an agent that hits an ambiguous or missing instruction is expected to log it right then, not work around it silently.
+2. **Gate it at the same point findings are gated** — before the next unit of work is picked. Every `new` note must land on one of exactly two outcomes: **filed** upstream, where the toolkit is maintained (an issue, with the version and context attached), or **dropped** with a one-line reason recorded in the note. "Sitting there" is not an outcome. Filing is always a human decision — outward-facing, and a half-formed note filed by reflex is worse than one that waits a day.
+
+This gives three tiers of process signal, each with a different cadence and a different owner. **Feedback** is one observation, now, about the toolkit, gated like a finding. A **retrospective** is a deliberate reading of one project's whole history. **Process notes** (wherever the toolkit itself is maintained) are human-curated, cross-project, and the only tier that actually changes this document. Feedback is the raw input the first two tiers were missing — the fast lane, so the slow lanes have something real to read.
+
+---
+
 ## Prep questions
 
 Before Pass 1 begins on a new project, a small number of questions shape how the rest of this process should run. They're asked once, the answers persist with the project, and downstream steps read them rather than re-deriving the same judgment call every time.
@@ -298,3 +311,4 @@ Before Pass 1 begins on a new project, a small number of questions shape how the
 15. **Split grounding by volatility.** Durable repo facts prefer `CLAUDE.md` and get patched, not regenerated; feature-specific facts stay scoped and fresh every single time.
 16. **Design posture is a decision, not a default.** "No visual surface," "deliberately utility-only," "follow the existing system," and "establish one now" are all legitimate answers — the failure mode is never picking one and letting Pass 2 invent it silently.
 17. **Open questions are a ledger with required evidence, not a paragraph of good intentions.** Resolved needs a citation, deferred needs a named target, dropped needs a reason — and the next agent to touch the doc re-checks the citation before trusting the label.
+18. **Give toolkit friction the same forcing function as a finding.** Log it the moment it happens, at no cost; gate it before the next pick — filed upstream or dropped with a reason, never left sitting.
