@@ -67,9 +67,7 @@ Parse from `TODO.md`:
 - the **ticket set** with statuses (`[ ]` open · `[~]` in-progress · `[x]` done · `[!]`
   blocked/paused · 🚧 human-gate · 🎨 design-touching) — one line per ticket, pointing at
   `tickets/<id>.md` for depth,
-- the **dependency edges** (`Blocked-by` / `Blocks`), **roots**, and **topological phases** —
-  from the ticket lines, not the diagram; the Mermaid DAG is a derived view you re-render
-  (below), never the thing you parse,
+- the **dependency edges** (`Blocked-by` / `Blocks`), **roots**, and **topological phases**,
 - the last ~10 lines of the **Execution log** inline; the full history lives in
   `execution-log-archive.md` if more context is needed.
 
@@ -116,8 +114,7 @@ recommended default from Step 1.5). Present the micro-plan and **wait
 for the human to approve, correct, or redirect.** Do not write code until approved.
 
 This is also the point where `tickets/<id>.md` — a stub until now — gets filled in with real
-scope. Mark the ticket `[~]` in `TODO.md` when work begins, and flip its node to
-`:::inprogress` in the DAG diagram (both `TODO.md` and `notes.md`'s Pass 3) in the same edit.
+scope. Mark the ticket `[~]` in `TODO.md` when work begins.
 
 ## 5. Implement + verify
 
@@ -141,10 +138,8 @@ noted in its re-spec, the same as any other divergence, not silently shipped.
 If the implementation diverged from the plan, **rewrite `tickets/<id>.md`** so it describes
 what was actually built (not the original promise) — this is the atomic bundling that makes
 re-spec reliable; do it as part of closing the ticket, not as a follow-up. Flip the ticket to
-`[x]` in `TODO.md` (one-line status only — the narrative lives in `tickets/<id>.md`) and flip
-its DAG node to `:::done` in both `TODO.md` and `notes.md` — the diagram is derived from the
-ticket lines and must never lag them. Append a line to the **Execution log** in `TODO.md`,
-e.g.:
+`[x]` in `TODO.md` (one-line status only — the narrative lives in `tickets/<id>.md`). Append a
+line to the **Execution log** in `TODO.md`, e.g.:
 `- T2 done — re-spec: aliased /api/bookmarks→/api/items rather than deleting; kept domains route.`
 For non-diverging work: `- T4 done (as planned).` If the inline Execution log is now past ~10
 lines, move the older entries into `execution-log-archive.md` (append-only, never pruned) and
@@ -168,12 +163,10 @@ Then return to **Step 2** for the next ticket (findings scan first, every loop).
 
 ## 7. Blockers, gates, and course-correction
 
-- **Blocked ticket:** mark `[!]` (and its DAG node `:::blocked`), add a **Blocker:** note in
-  `tickets/<id>.md` (what's missing, what would unblock it), log it in `TODO.md`'s Execution
-  log, and go find parallel eligible work (Step 3). A discovered *new dependency* is not a
-  defect — add it to the DAG as a new ticket (the graph grows during execution): a new
-  one-liner in `TODO.md`, a new `tickets/<id>.md` stub, and a new node + edges in the Mermaid
-  diagram (both copies), all in the same commit.
+- **Blocked ticket:** mark `[!]`, add a **Blocker:** note in `tickets/<id>.md` (what's missing,
+  what would unblock it), log it in `TODO.md`'s Execution log, and go find parallel eligible
+  work (Step 3). A discovered *new dependency* is not a defect — add it to the DAG as a new
+  ticket (the graph grows during execution).
 - **🚧 Human-gate / risky step:** do **not** proceed autonomously through migrations on live
   data, secret/credential changes, destructive ops (drops, force-push, `rm -rf`), or external
   infra (deploys, third-party service setup) — at **any** `risk_tolerance` tier. You may

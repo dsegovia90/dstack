@@ -59,16 +59,13 @@ produced one of them.
    model, components, the "how" — grounded against the repo profile from step 2 plus a narrow,
    scoped look at just the area this feature touches, not a full-repo sweep. Ticket grooming
    falls out of this pass as a side effect (see that doc's "Rough ticket-shaped seams" list) —
-   it's not a separate step. Where a section is shaped enough to earn a picture (a data model
-   with several related tables, a multi-hop request path, a state machine), the skill offers
-   to draw it in the notation the `diagrams` prep answer names — the reference project chose
-   `mermaid` but drew nothing in Pass 2, because its two-table schema is shorter as prose.
+   it's not a separate step. In Pass 1 or Pass 2, where a shape is hard to read as prose (a
+   user flow, code structure, a data model, infrastructure), the skill offers a diagram in the
+   notation the `diagrams` prep answer names — the reference project chose `mermaid` but drew
+   nothing, because every shape it had was shorter as a paragraph.
 5. **Pass 3 — Execution phasing + DAG:** the groomed seams become real tickets (`D1`–`D5` in
    the reference project), chained by `blocked-by`/`blocks` into a dependency graph, with roots
-   and topological phases called out. The DAG is always drawn, always in one fixed Mermaid
-   shape (one subgraph per phase, one edge per `blocked-by`, four fixed status classes) — a
-   status board re-rendered with every ticket state change, not an illustration. See that
-   doc's "Pass 3" section and `TODO.md` for the rendered graph.
+   and topological phases called out. See that doc's "Pass 3" section for the diagram.
 6. **Fork the ticketing backend:** Linear (structured/team) or a local `TODO.md` (lighter,
    solo-friendly) — see the Decision guide below for which. The reference project uses the
    local fork: `TODO.md` is generated as a **skeleton only** (one line per ticket, the DAG
@@ -203,13 +200,14 @@ Any line only on one side of that diff is a word whose count changed — worth c
   only" for something small enough that a mid-project checkpoint would just be close-out early.
 
 **Do I want diagrams (prep question 5)?**
-- **`mermaid` (recommended).** Renders on GitHub, in Linear, and in most editors, and it's
-  what the DAG uses anyway. Pass 2 offers a picture only where one is shorter than the
-  paragraph it replaces — a data model with three or more related tables, a request path with
-  several hops, a component map, a state machine — never for a two-table schema.
+- **`mermaid` (recommended).** Renders on GitHub, in Linear, and in most editors. The skill
+  offers a picture only where one is shorter than the paragraph it replaces.
 - **`ascii`** if the doc is mostly read in a terminal.
-- **`none`** if you want every section as prose. The DAG is still drawn — always, in Mermaid,
-  in the same fixed shape — because it's a live status board, not an illustration.
+- **`none`** if you want every section as prose.
+
+`SKILL.md` has a short default list of when to draw (user flows, code structure, data models,
+request paths, infrastructure, state machines). A standing instruction from you or the project
+can add or remove cases.
 
 **What design posture should I pick (Step 1.8)?**
 - **Has a visual surface, and a system already governs it (brand guidelines, component
@@ -240,11 +238,6 @@ pre-standalone version of dstack actually hit in production use:
 - **Don't skip the findings scan "just this once" before picking the next ticket.** It's a hard
   gate for a reason — the one time it gets skipped is the time something sits orphaned for
   weeks.
-- **Don't edit the DAG diagram by hand, and don't let it lag the ticket lines.** The ticket
-  one-liners (`blocked-by` / `blocks` / checkbox) are the source of truth; the Mermaid diagram
-  is derived from them and re-rendered in the same commit as every status change. A diagram
-  that disagrees with the lines is stale, and the lines win — a retro treats the mismatch as
-  evidence a re-render was skipped.
 - **Don't mark an open question "resolved" without a citation.** A resolution needs to point at
   the specific section where the decision actually lives, and the next agent to touch the doc
   is expected to open that section and check it, not trust the label — a "resolved" with no

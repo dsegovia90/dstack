@@ -25,9 +25,7 @@ several, ask. An argument that matches nothing: say so, then ask.
 ## 2. Gather sources — detect the fork first
 
 **Fork B (local `TODO.md` present):**
-- `TODO.md` — current skeleton state, phases, roots. Read status from the ticket lines; the
-  Mermaid DAG is a derived view — if its node classes disagree with the checkboxes, that
-  itself is a process observation (a re-render got skipped), worth noting in Step 3.
+- `TODO.md` — current skeleton state, phases, roots.
 - `execution-log-archive.md` (if present) + the inline Execution log in `TODO.md` — the full
   append-only history of ticket completions and re-specs.
 - `tickets/*.md` — every ticket's re-spec narrative (this is where the real divergence detail
