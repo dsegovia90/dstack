@@ -5,17 +5,22 @@
 _See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
 status of each item. Entries land here one PR at a time as each ships._
 
-- **Diagrams — a tool, and one rigid convention.** Two separate things. **(A)** A fifth prep
-  question, `diagrams: mermaid | ascii | none`, sets the notation Pass 2 uses when a section
-  is shaped enough to earn a picture (a data model with three or more related tables, a
-  multi-hop request path, a component map, a state machine); the rule is "draw when the
-  picture is shorter than the paragraph it replaces," and the prose stays the decision.
-  **(B)** The Pass 3 DAG is now *always* drawn in one fixed Mermaid shape — `flowchart TD`,
-  one subgraph per phase, one edge per `blocked-by`, four verbatim `classDef` status classes
-  whose node class *is* the checkbox state — and re-rendered in the same commit as every
-  ticket state change, in both `notes.md` and `TODO.md`. The ticket one-liners remain the
-  source of truth; the diagram is derived. The reference project's ASCII DAGs are converted.
-  See `llm-coding-workflow.md`'s new "Diagrams" section.
+- **Command arguments** — `/dstack-ticket`, `/dstack-yolo`, `/dstack-retro`, and `/dstack`
+  all take an optional target: a project name, a local ticket id, or (for `/dstack-ticket`)
+  a Linear identifier. A project argument skips the "which project" question; a ticket
+  argument makes that ticket the *proposed* pick. Nothing that's a gate moves: the findings
+  scan still runs first, and the proposed ticket still has to be on the eligible frontier
+  with every dependency verified against the code on disk — otherwise the command says which
+  dependency is unmet and falls back to its normal pick. See `dstack-ticket.md` Step 0.
+
+- **Diagrams prep question** — a fifth prep question, `diagrams: mermaid | ascii | none`
+  (default `mermaid`), sets the notation for an *optional* picture where a shape is hard to
+  read as prose — a user flow in Pass 1, a data model, request path, component map,
+  infrastructure layout, or state machine in Pass 2. The rule is "draw when the picture is
+  shorter than the paragraph it replaces," and the prose stays the decision. `SKILL.md`
+  carries a short default list of when to draw; a project or user can add or remove cases
+  with plain standing instructions. The Pass 3 DAG is unchanged — this question doesn't
+  touch it.
 
 ## 0.3.0 — 2026-08-05
 

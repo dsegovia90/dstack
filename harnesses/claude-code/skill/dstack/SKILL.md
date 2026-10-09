@@ -29,7 +29,9 @@ option first.
 
 ## Step 0 — Pick the project, then detect existing work (resume vs. fresh)
 
-First, list the project folders under `doc/dstack/`.
+If the user invoked this skill with a project name (`/dstack <project>`) that matches a folder
+under `doc/dstack/`, that's the project — state which and skip the listing below. Otherwise,
+list the project folders under `doc/dstack/`.
 - **Exactly one project folder:** assume that's the one we're working on (state which).
 - **More than one:** do **not** try to reason out which is intended — **immediately ask the
   user which project we're working on** (`AskUserQuestion`) and wait.
