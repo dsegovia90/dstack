@@ -21,6 +21,14 @@ status of each item. Entries land here one PR at a time as each ships._
   recorded front matter; repo facts still belong in `CLAUDE.md`. Nothing invokes the command
   automatically. See `llm-coding-workflow.md`'s "Config" section and the adapter's
   `skill/dstack/config.md`.
+- **Fix: `Dstack-*` commit trailers are real git trailers again** — Claude Code adds its own
+  `Co-Authored-By` line after a blank line, which split the trailer block, so git saw only
+  `Co-Authored-By` and treated `Dstack-Project` / `Dstack-Ticket` as body text.
+  `/dstack-yolo` Step 6 now says all trailers go in one final block with no blank line
+  between them, shows `Co-Authored-By` in the example, and checks the result with
+  `git log -1 --format='%(trailers:key=Dstack-Ticket,valueonly)'` (amend if empty). The
+  harness template README notes the trap for new adapters. `/dstack-retro`'s `--grep` search
+  was never affected. (#16)
 - **Command arguments** — `/dstack-ticket`, `/dstack-yolo`, `/dstack-retro`, and `/dstack`
   all take an optional target: a project name, a local ticket id, or (for `/dstack-ticket`)
   a Linear identifier. A project argument skips the "which project" question; a ticket
