@@ -44,7 +44,7 @@ and find parallel work rather than stopping — but you stop *cleanly* when stop
   verified and re-spec'd, commit *just that ticket's* changes with a message naming the work,
   and trailers `Dstack-Project: <project>` and `Dstack-Ticket: <id>` (see Step 6) — these are
   what let `/dstack-retro` find this project's history later even after the branch is merged
-  and deleted.
+  and deleted. All trailers go in **one block at the end** of the message (Step 6).
 - **Pause before going too far** (see Stop conditions). Don't thrash; don't overrun a blocker.
 
 ## 0. Read the arguments
@@ -159,7 +159,20 @@ T2: alias /api/bookmarks→/api/items, keep domains route
 
 Dstack-Project: <project>
 Dstack-Ticket: T2
+Co-Authored-By: <only if your harness adds one>
 ```
+
+Git reads only the **last paragraph** of a message as trailers. Put every trailer — the two
+`Dstack-*` lines and any line your harness adds, such as `Co-Authored-By` — in that one final
+block, with **no blank line between them**. A blank line before `Co-Authored-By` turns the
+`Dstack-*` lines into plain body text. After committing, check:
+
+```sh
+git log -1 --format='%(trailers:key=Dstack-Ticket,valueonly)'
+```
+
+It must print the ticket id. If it prints nothing, fix the message with `git commit --amend`
+before moving on.
 
 One ticket = one commit, on the working branch from Step 5 — never commit straight to
 `main`/`master`.

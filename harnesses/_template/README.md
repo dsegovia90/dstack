@@ -45,3 +45,8 @@ None of the conventions themselves (`doc/dstack/<project>/notes.md` + `TODO.md` 
 `findings/` + `retros/` + `config.md`, the front-matter shape, the commit-trailer convention) are
 harness-specific — a new adapter should point at the same files and conventions the
 `claude-code/` adapter uses, just invoked through different mechanics.
+
+The commit-trailer convention has one trap: git reads only the last paragraph of a commit
+message as trailers. If your harness adds its own trailer (Claude Code adds `Co-Authored-By`),
+it must go in the same final block as `Dstack-Project` / `Dstack-Ticket`, with no blank line
+between them — see `claude-code/commands/dstack-yolo.md` Step 6.
