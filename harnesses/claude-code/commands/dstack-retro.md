@@ -1,5 +1,6 @@
 ---
 description: Produce a retrospective on a dstack project's real history — completions vs. plan, re-specs, blockers, findings, and what it suggests about improving the process itself
+allowed-tools: Bash(./dstack-config:*)
 argument-hint: "[project]"
 ---
 
@@ -15,6 +16,10 @@ Read `llm-coding-workflow.md`'s "Retrospective — closing the loop on the loop"
 it explains why this exists and what a retro is for: a project-scoped honest account, plus
 process-level observations that, if they recur across multiple projects, are the actual
 evidence for whether `llm-coding-workflow.md` itself should change.
+
+## Config in effect
+
+!`./dstack-config load`
 
 ## 1. Pick the project
 

@@ -1,5 +1,6 @@
 ---
 description: Autonomously work a local TODO.md ticket DAG — pick, plan-gate, implement, verify, re-spec, and loop; set aside blockers and switch to parallel work; pause before overrunning a blocker
+allowed-tools: Bash(./dstack-config:*)
 argument-hint: "[project] [ticket-id]"
 ---
 
@@ -14,6 +15,10 @@ truthful.
 Your mandate: **maximize correctly-completed work before needing the human**, while never
 charging past a real blocker or a risky gate. You course-correct, set aside blocked tickets,
 and find parallel work rather than stopping — but you stop *cleanly* when stopping is right.
+
+## Config in effect
+
+!`./dstack-config load`
 
 ## Operating contract (confirmed defaults)
 

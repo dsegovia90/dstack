@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Install dstack into a target repo: copies the harness-agnostic spec, a
-# self-update script (dstack-update), and one harness adapter's skill/command
+# self-update script (dstack-update), a config script (dstack-config), and one harness adapter's skill/command
 # files into place, and stamps a .dstack-version file recording what was
 # installed.
 #
@@ -78,7 +78,13 @@ cp "$SCRIPT_DIR/dstack-update.sh" "$TARGET/dstack-update"
 chmod +x "$TARGET/dstack-update"
 echo "  dstack-update.sh -> dstack-update"
 
-# 3. Harness adapter files, whatever shape this harness needs.
+# 3. Config script -> target repo root. Harness-agnostic: every adapter's
+#    commands get their config from this one script.
+cp "$SCRIPT_DIR/dstack-config.sh" "$TARGET/dstack-config"
+chmod +x "$TARGET/dstack-config"
+echo "  dstack-config.sh -> dstack-config"
+
+# 4. Harness adapter files, whatever shape this harness needs.
 case "$HARNESS" in
   claude-code)
     mkdir -p "$TARGET/.claude/skills" "$TARGET/.claude/commands"
@@ -96,7 +102,7 @@ case "$HARNESS" in
     ;;
 esac
 
-# 4. Version stamp, so a target repo (or a human) can tell what it's running
+# 5. Version stamp, so a target repo (or a human) can tell what it's running
 #    and whether it's stale against this source.
 VERSION="$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")"
 COMMIT="$(git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null || echo "uncommitted")"
