@@ -36,9 +36,7 @@ several, ask. An argument that matches nothing: say so, then ask.
 - `tickets/*.md` — every ticket's re-spec narrative (this is where the real divergence detail
   lives — read all of them, not just the open ones).
 - `findings/*.md` — every finding's `status` and, for dismissed ones, the reason recorded.
-- `git log` filtered by trailer: `git log --all --grep "Dstack-Project: <project>"` (and
-  `Dstack-Ticket:` per ticket if you need commit-level timing) — this is what makes project
-  history findable even after a working branch has been merged and deleted.
+- Commit and PR history — see "Both forks", below.
 
 **Fork A (Linear, `README.md`/`notes.md` with `KAI-####` links):**
 - The doc's ticket set + DAG section for the skeleton.
@@ -47,9 +45,20 @@ several, ask. An argument that matches nothing: say so, then ask.
   `SKILL.md` Step 3's Fork A re-spec convention). No local export step; if MCP access isn't
   available when this runs, say so plainly rather than producing a retro from stale/partial data.
 
-**Both forks:** `git log -p -- doc/dstack/<project>/notes.md` — the doc's own edit history is
-a timeline of how understanding evolved across Pass 1 → 2 → 3, independent of ticket execution.
-Diff each revision to see what changed and roughly when, relative to ticket completions.
+**Both forks:**
+- **Commits, by trailer.** Each ticket has its own branch, so its commits are spread across many
+  branches. Run `git fetch origin` first, so branches other people pushed are included, then
+  `git log --all --grep "Dstack-Project: <project>"` (and `Dstack-Ticket: <id>` per ticket for
+  commit-level timing). `--all` covers every local and fetched branch; merged-and-deleted
+  branches are still found through the trunk.
+- **PRs, by branch.** For each row of the ticket table with a `Branch`, run
+  `gh pr list --state all --head <branch> --json number,title,state,createdAt,mergedAt` — once per
+  name in the cell, if the ticket split. This gives open and merge dates, and still finds the
+  ticket when a squash merge dropped the commit trailers. If `gh` isn't available, say so and
+  rely on the trailers.
+- `git log -p -- doc/dstack/<project>/notes.md` — the doc's own edit history is a timeline of
+  how understanding evolved across Pass 1 → 2 → 3, independent of ticket execution. Diff each
+  revision to see what changed and roughly when, relative to ticket completions.
 
 ## 3. Produce the retro
 
