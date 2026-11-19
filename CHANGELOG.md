@@ -1,9 +1,44 @@
 # Changelog
 
-## 0.4.0 — unreleased
+## 0.5.0 — unreleased
 
-_See `meta/roadmap-0.4.md` for the full list of what's planned for this release and the
-status of each item. Entries land here one PR at a time as each ships._
+- **One ticket, one branch, one PR, named in the ticket table** — Pass 3 used to write the
+  ticket set in different shapes (bullets in some projects, tables in others), and no command
+  made a branch from a known name: `/dstack-yolo` ran a plain `git checkout -b dstack/<project>`
+  for every ticket at once, `/dstack-ticket` had no branch step, and repos that ship through
+  Graphite block raw `git checkout -b`. Now:
+  - **One ticket-table format, both forks:** `| Ticket | Branch | Scope | Blocked by |`, then
+    optional columns (`Phase`, `Days`, …). The `Ticket` cell holds the status box (required in
+    Fork B), the local id, the markers 🚧 🎨 ✂ (new: may split into more than one PR), and for
+    Fork A the `[ID](url)` link. Exact cell rules, written for scripts, are in the adapter's
+    new `skill/dstack/tickets-and-branches.md`. Bullet ticket sets are legacy: still read,
+    never written; the first branch-first step on one offers to convert it.
+  - **Pass 3 fills `Branch`:** Fork A copies each Linear issue's `gitBranchName` verbatim right
+    after creating it (kept even if the title changes); Fork B fills `branch.pattern`; tickets
+    with no code get `—`. Tickets added later (findings, new dependencies) get one the same way.
+  - **One shared branch-first step** in `/dstack-ticket` (new Step 7, after the pick is
+    confirmed) and `/dstack-yolo` (start of Step 4, every ticket), before any edit: read the
+    ticket's `Branch`; parent = an open (unmerged) blocker's branch, else the trunk; Graphite
+    `gt sync` / `gt checkout` / `gt create`, or git `fetch` / `switch --no-track -c`; an
+    existing branch is checked out, never duplicated; a split adds `-2`, `-3`.
+  - **One ticket = one PR:** `/dstack-yolo`'s "one commit per ticket" on a shared working branch
+    becomes one branch per ticket. The first commit's subject is the PR title (`[KAI-123] …` for
+    Fork A, `D3: …` for Fork B). Opening the PR stays a human act unless config says
+    `branch.submit: draft`.
+  - **Branching config:** `branch.tool` (`graphite` | `git`), `branch.trunk`, `branch.pattern`
+    (default `feature/<id>-<slug>`), `branch.submit` (`manual` | `draft`) — the one structured
+    part of config, since scripts read it. New `./dstack-config branching [project]` prints the
+    value in effect for each key and the level it came from. See `skill/dstack/config.md`.
+  - **`/dstack-retro`** still finds tickets by commit trailer across all their branches; it now
+    fetches first, and looks up each row's `Branch` with `gh pr list` for PR dates and squash
+    merges that dropped the trailers.
+
+  See `llm-coding-workflow.md`'s new "One ticket, one branch, one PR" section and principle 19.
+
+## 0.4.0 — 2026-11-12
+
+_Released as master at `6dba8fe`. See `meta/roadmap-0.4.md` for what was planned for this
+release; item 3 (`/dstack-feedback`, PR #9) didn't ship in it._
 
 - **`/dstack-config` and layered config** — standing preferences about how dstack should behave
   previously had nowhere to live except being re-typed each session or hand-edited into the
