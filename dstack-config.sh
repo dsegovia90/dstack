@@ -158,7 +158,7 @@ user-project	$(user_project_file "$PROJECT")"
         case "$key" in
           tool) value=git ;;
           trunk) value="$(default_trunk)" ;;
-          pattern) value='feature/<project>-<id>-<slug>' ;;
+          pattern) value='feature/<id>-<slug>' ;;
           submit) value=manual ;;
         esac
       fi

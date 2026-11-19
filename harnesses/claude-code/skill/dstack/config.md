@@ -99,7 +99,7 @@ counts.
 |---|---|---|---|
 | `branch.tool` | `graphite` or `git` | `git` | How branches are made. `graphite`: `gt sync`, `gt checkout`, `gt create`. `git`: `git fetch`, `git switch -c`. Repos that ship through Graphite often block a raw `git checkout -b`. |
 | `branch.trunk` | a branch name | `origin`'s default branch, else `main` | The parent of a ticket with no open blocker. |
-| `branch.pattern` | a pattern using `<project>`, `<id>`, `<slug>`; must contain `<id>` | `feature/<project>-<id>-<slug>` | Fork B branch names (filled into the ticket table at Pass 3). Fork A never uses it: its names are the Linear issue's own `gitBranchName`. |
+| `branch.pattern` | a pattern using `<project>`, `<id>`, `<slug>`; must contain `<id>` | `feature/<id>-<slug>` | Fork B branch names (filled into the ticket table at Pass 3). Fork A never uses it: its names are the Linear issue's own `gitBranchName`. |
 | `branch.submit` | `manual` or `draft` | `manual` | `manual`: when a ticket is done, print the PR command for the user to run. `draft`: run it, opening a draft PR. Review and merge stay human either way. |
 
 Any level can set them, with the usual precedence. The usual place is `repo`, since a team
@@ -112,7 +112,7 @@ level it came from (`default` when no level sets it):
 ```
 tool	graphite	repo
 trunk	main	default
-pattern	feature/<project>-<id>-<slug>	default
+pattern	feature/<id>-<slug>	default
 submit	manual	default
 ```
 
