@@ -90,7 +90,7 @@ The progressive-disclosure principle above only holds if the skeleton actually *
 The fix is structural, not a discipline to remember: **three tiers, not two.**
 
 1. **The doc** (Pass 1–3 narrative) — intent, architecture, execution phasing. Stable. Full ticket bodies never live here past Pass 3; Pass 2's rough ticket-shaped seams are grooming output and stay light, but the moment Pass 3 forks to a ticketing backend, per-ticket detail moves out, not just grows in place.
-2. **The skeleton** (the DAG artifact itself — a ticketing-system board, or a lightweight local file) — status, the dependency diagram, phases, and **one line per ticket**: id, title, blocked-by/blocks, phase, a pointer to tier 3. If you're about to write more than that one line into the skeleton, stop — it belongs in tier 3.
+2. **The skeleton** (the DAG artifact itself — a ticketing-system board, or a lightweight local file) — status, the dependency diagram, phases, and **one table row per ticket**: id, the ticket's branch, a one-line scope, blocked-by, phase, a pointer to tier 3. If you're about to write more than that one row into the skeleton, stop — it belongs in tier 3.
 3. **Per-ticket detail** — scope, files, acceptance, the Pass-4 micro-plan, and the re-spec narrative once it exists. Created as a stub the moment a ticket enters the DAG (so pointers never dangle), filled in only when the ticket is actually picked — depth exists exactly where work has reached, not everywhere at once.
 
 Where a ticketing system with its own navigable detail view already exists, it *is* tier 2+3 combined — don't also duplicate ticket scope/acceptance into the doc. That's pure redundancy with no sync guarantee: two copies of the same fact, one of which will eventually go stale. The doc references a ticket by id/link and a one-line title, full stop; the ticketing system is the sole source of ticket detail.
@@ -158,6 +158,22 @@ A ticket begins as *intent*; once the work lands, I reconcile it back to *realit
 | Code | ground-truth *reality* | it is the reality |
 
 **What makes this actually reliable in practice — evidence, not aspiration.** Re-spec that depends on someone *remembering* to do it degrades quickly. What works is making it **structural**: bundling the re-spec edit into the same commit (or same PR/branch, even if later squashed) as the code that caused the divergence. When that bundling exists, re-spec happens close to universally, often within minutes of the code landing. When it doesn't — a ticket closes without a forced "does the ticket still match what you built" step — divergence survives uncorrected far longer, sometimes for weeks, and only gets caught if someone circles back deliberately. Design the ticket-closing step so re-spec is *part of* closing, not a follow-up task that can be skipped.
+
+---
+
+## One ticket, one branch, one PR
+
+A ticket is already sized to be the largest unit a person can review in one sitting (see Chunk sizing). A pull request is that same unit seen from version control — so **every ticket that changes code gets exactly one branch and exactly one PR.** A single long-lived project branch that collects every ticket throws that sizing away: review gets one giant diff at the end, and the team's PR tooling has nothing per ticket to link to.
+
+**The plan names the branch; nothing invents one at checkout.** The branch name is a column of the ticket skeleton, written when the ticket is created, and every later step reads it from there:
+
+- **Structured backend:** the backend's own suggested branch name for the issue, copied once when the issue is created. The issue id inside it is what links the PR back to the issue. The copy stays fixed even if the issue's title changes later.
+- **Local file-based:** a naming pattern set in config, filled from the ticket's id and scope.
+- **Tickets that change no code** (a spike, infra, a rollout, a flag flip) record "no branch" explicitly — not a blank.
+
+**Before any edit for a ticket, its branch is created on its parent** — or checked out, if it already exists; never a second one. The parent is the blocker the ticket's code builds on, if that blocker is built but not yet merged; otherwise the trunk. So dependent tickets stack, and independent tickets sit side by side on the trunk as separate stacks. A ticket that turns out, at its plan gate, to need several PRs keeps its one name and numbers the extra parts.
+
+How branches are made (plain git or a stacking tool), which branch is the trunk, the local naming pattern, and whether a tool may open a PR at all are repo settings in config (see Config). By default, opening the PR stays a human act. Whatever the settings, each commit still carries the ticket's identity, so a retrospective can find the ticket's history across all its branches after they're merged and gone.
 
 ---
 
@@ -294,6 +310,8 @@ Three rules keep this from turning into a junk drawer:
 - **Narrower beats wider, and personal beats shared at the same scope** — user → repo → user+repo → project → user+project, later wins. Every command that loads config shows what's in effect grouped by the level it came from, so an override is visible rather than silent; and conflicts are checked when a setting is *written*, against every other level, not discovered later at execution time.
 - **Config has a floor and two neighbors it doesn't replace.** No level relaxes a hard gate (irreversible actions, the findings scan) — same as risk tolerance. It doesn't override a project's recorded prep answers; it only supplies their *defaults* when a new project is created, and the project's own record wins from then on. And it isn't where facts about the codebase go — those belong in the repo profile (see Grounding), read by every session, not only by this process.
 
+Most settings are plain prose. The few that scripts also read — how ticket branches are made (see One ticket, one branch, one PR) — have a fixed shape, so a script reads exactly what the agent does.
+
 Resolving where each level lives and assembling what's set is done by one script shipped with the process, not re-derived by the agent or re-described in each command — every command starts from that script's output. Config is edited through its own command and never as a side effect of another one — a planning or execution session reads it, shows it, and follows it, but doesn't quietly add to it.
 
 ---
@@ -317,7 +335,7 @@ Resolving where each level lives and assembling what's set is done by one script
 3. **Chain tickets into a DAG.** It yields *where to start* (roots) and *what to parallelize* (forks) for free.
 4. **Size chunks to ~1–3 human-days** — to reviewable, coherent units, not to tool speed.
 5. **Give each chunk positional context.** Backward = state to build on; forward = seams to leave.
-6. **Disclose the graph progressively, at three tiers.** Doc = stable map; skeleton = one line per ticket; detail = created only where work has actually reached.
+6. **Disclose the graph progressively, at three tiers.** Doc = stable map; skeleton = one row per ticket; detail = created only where work has actually reached.
 7. **Re-specify after completion — and make it structural.** Bundle the re-spec into the same commit/close-out step as the code, not a remembered follow-up; that's what actually makes it reliable.
 8. **Give freestanding discoveries the same forcing function as tickets.** A finding isn't done being handled until it's folded in, spawned as a ticket, or explicitly dismissed — never left sitting.
 9. **Chain warm, restart cold.** Exploit warm context across dependents; reset when it rots.
@@ -330,3 +348,4 @@ Resolving where each level lives and assembling what's set is done by one script
 16. **Design posture is a decision, not a default.** "No visual surface," "deliberately utility-only," "follow the existing system," and "establish one now" are all legitimate answers — the failure mode is never picking one and letting Pass 2 invent it silently.
 17. **Open questions are a ledger with required evidence, not a paragraph of good intentions.** Resolved needs a citation, deferred needs a named target, dropped needs a reason — and the next agent to touch the doc re-checks the citation before trusting the label.
 18. **Standing preferences get a home with a scope.** Who a setting applies to and where are explicit, layered, and visible at load time — not re-typed every session, and never hand-edited into the installed process files.
+19. **One ticket, one branch, one PR — named in the plan.** The branch is decided when the ticket is, written in the skeleton, and read by every later step; dependent tickets stack on unmerged blockers, independent ones start from the trunk.

@@ -65,10 +65,14 @@ produced one of them.
    nothing, because every shape it had was shorter as a paragraph.
 5. **Pass 3 — Execution phasing + DAG:** the groomed seams become real tickets (`D1`–`D5` in
    the reference project), chained by `blocked-by`/`blocks` into a dependency graph, with roots
-   and topological phases called out. See that doc's "Pass 3" section for the diagram.
+   and topological phases called out. See that doc's "Pass 3" section for the diagram. The
+   ticket set is a table — `Ticket | Branch | Scope | Blocked by`, plus optional columns — and
+   the `Branch` column names each ticket's one branch (one ticket = one branch = one PR). For
+   Linear that's the issue's own branch name; for a local `TODO.md` it comes from a pattern in
+   config (`feature/<id>-<slug>` by default); a ticket with no code gets `—`.
 6. **Fork the ticketing backend:** Linear (structured/team) or a local `TODO.md` (lighter,
    solo-friendly) — see the Decision guide below for which. The reference project uses the
-   local fork: `TODO.md` is generated as a **skeleton only** (one line per ticket, the DAG
+   local fork: `TODO.md` is generated as a **skeleton only** (one table row per ticket, the DAG
    diagram, phases, a status legend) — full detail moves to `tickets/<id>.md`, created as empty
    stubs for every ticket right away so nothing links to nowhere.
 7. **Pick and work a ticket:** the next-ticket command scans for untriaged `findings/` first
@@ -77,7 +81,9 @@ produced one of them.
    know what you want, say so up front — `/dstack-ticket D3`, `/dstack-ticket digest-emails`,
    or a Linear id like `/dstack-ticket KAI-123` — and it skips the "which project" question
    and proposes that ticket; the findings gate and the dependency check still run either
-   way (`/dstack-yolo D3` and `/dstack-retro digest-emails` take the same form). Once confirmed, a
+   way (`/dstack-yolo D3` and `/dstack-retro digest-emails` take the same form). Once confirmed,
+   the ticket's branch comes first — the name from its row, created on top of an open
+   blocker's branch or the trunk (or checked out, if it exists) — and then a
    plan-mode micro-plan happens before any code — cadence depends on the `risk_tolerance`
    answer. Compare `tickets/D1.md`'s "Scope (as planned)" section to its "Re-spec — what
    actually shipped" section: the plan changed once real implementation surfaced a wrinkle
@@ -179,7 +185,7 @@ Any line only on one side of that diff is a word whose count changed — worth c
 ## Config — standing preferences for future dstack commands
 
 Anything you'd otherwise repeat at the start of every session ("never recommend Linear here",
-"branch names are `feat/<project>`", "I always work solo, gate every ticket") goes in config.
+"we branch with Graphite", "I always work solo, gate every ticket") goes in config.
 Run **`/dstack-config`**: it asks where the setting applies and who it applies to, shows what's
 already set there, takes the change in your own words, and checks it against the other levels
 before writing. `/dstack`, `/dstack-ticket`, `/dstack-yolo`, and `/dstack-retro` each load it
@@ -207,6 +213,28 @@ Later rows win: narrower scope beats wider, and personal beats shared at the sam
 - **Config can't relax a 🚧 human-gate or skip the findings scan**, at any level.
 - **Nothing runs `/dstack-config` for you.** It isn't part of first-run setup; a repo with no
   config behaves exactly as it did before this existed.
+
+**Branching settings** are the one structured part of config, because scripts read them too.
+Set them at the repo level so the whole team shares them:
+
+```markdown
+## Branching
+- branch.tool: graphite
+- branch.trunk: main
+- branch.pattern: feature/<id>-<slug>
+- branch.submit: manual
+```
+
+- `branch.tool` — `graphite` or `git` (default `git`): how ticket branches are made.
+- `branch.trunk` — the branch tickets start from when no open blocker is under them (default:
+  `origin`'s default branch).
+- `branch.pattern` — branch names for a local `TODO.md` project (default
+  `feature/<id>-<slug>`). Linear projects ignore it: their names are the issues' own.
+- `branch.submit` — `manual` or `draft` (default `manual`): may dstack open a draft PR when a
+  ticket is done, or only print the command?
+
+`./dstack-config branching [project]` prints the value in effect for each, and where it came
+from. The exact format is in the adapter's `skill/dstack/config.md`.
 
 ## Decision guide
 
@@ -261,7 +289,7 @@ can add or remove cases.
 Drawn from real evidence, not hypotheticals — these are documented failure modes a prior,
 pre-standalone version of dstack actually hit in production use:
 
-- **Don't let the skeleton (`TODO.md` / the doc's ticket list) grow past one line per ticket.**
+- **Don't let the skeleton (`TODO.md` / the doc's ticket table) grow past one row per ticket.**
   A real production project's dstack doc grew to 900 lines by mixing stable architecture prose
   with ever-growing per-ticket detail in the same file. Full detail belongs in `tickets/<id>.md`
   (or the ticketing system's own detail view) — always.
@@ -316,6 +344,12 @@ optional argument: `/dstack <project>`, `/dstack-ticket <project | ticket-id | L
 be on the eligible frontier (every dependency genuinely done, checked against the code on
 disk). If it isn't, the command says which dependency is unmet and falls back to the normal
 pick. An argument that matches nothing is reported, not guessed at.
+
+**My project's ticket set is a bullet list, not a table. Does it still work?** Yes — every
+command still reads bullets. Bullets have no branch names, though, so the first time
+`/dstack-ticket` or `/dstack-yolo` needs a ticket's branch, it offers to convert the ticket set
+to the table and fill every `Branch` (from Linear, or from `branch.pattern`). Nothing makes up a
+branch name that isn't written in the table.
 
 **Does this work for a bug fix or refactor, not just a new feature?** Yes — the planning skill
 asks what kind of work it is up front and compresses the three passes sensibly for anything
