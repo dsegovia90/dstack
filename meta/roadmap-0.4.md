@@ -11,13 +11,16 @@ number. A rejected item gets `[-]` and a one-line reason, so the next person to 
 question knows why it closed. Nothing here is a spec — each PR's description and the files it
 touches are the spec.
 
+**Released 2026-11-12** as master at `6dba8fe`: items 0–2, plus `/dstack-config` (#15), which
+wasn't on this list. Item 3 is still open and will ship in a later release.
+
 ## Items
 
 | # | Item | Status | Branch | PR | Shape of the change |
 |---|---|---|---|---|---|
 | 0 | This roadmap + `VERSION` 0.4.0 + `CHANGELOG` heading | `[x]` | `feat/roadmap-0.4` | #6 | Docs only. |
 | 1 | Command arguments — `/dstack-ticket <project \| ticket-id \| LINEAR-ID>`, same for `/dstack-yolo`, `/dstack-retro`, `/dstack` | `[x]` | `feat/command-args` | #7 | An argument picks the project or *proposes* a ticket. The findings gate and the dependency check never move — a proposed ticket still goes through both. |
-| 2 | Diagrams — a light-touch prep question | `[~]` | `feat/mermaid-diagrams` | #8 | A `diagrams: mermaid \| ascii \| none` prep question: an optional tool for making Pass 1 and Pass 2 readable (user flows, code structure, data models, infrastructure). The spec states the rule only; `SKILL.md` holds a default when-to-draw list that standing instructions can add to or trim. **Scoped down 2026-10-09:** the rigid Mermaid DAG convention was removed — the DAG is unchanged. |
+| 2 | Diagrams — a light-touch prep question | `[x]` | `feat/mermaid-diagrams` | #8 | A `diagrams: mermaid \| ascii \| none` prep question: an optional tool for making Pass 1 and Pass 2 readable (user flows, code structure, data models, infrastructure). The spec states the rule only; `SKILL.md` holds a default when-to-draw list that standing instructions can add to or trim. **Scoped down 2026-10-09:** the rigid Mermaid DAG convention was removed — the DAG is unchanged. |
 | 3 | `/dstack-feedback` — log a note about dstack itself while working | `[~]` | `feat/feedback` | #9 | One file per note in `doc/dstack/feedback/`, `status: new`, same shape as a finding. A gate (same step as the findings scan) clears the list: **file** as a GitHub issue on the dstack repo via `gh`, or **drop** with a reason. Agents are told to log friction the moment they hit it. |
 | 4 | Rollout posture (feature flags), Step 1.9 | `[-]` | `feat/rollout-posture` | #10 | **Removed from 0.4.0** (PR closed 2026-10-09). Asked once per project, same shape as design posture: `none` / `flags` / `staged`, with the convention's location recorded (`CLAUDE.md`-first). Per feature, Pass 1 states the rollout decision; flag-gated tickets get a soft marker; a temporary flag's cleanup becomes a DAG node, not a memory. |
 | 5 | `vcs_shape` prep question — where dstack's opinion on commits/branches/PRs starts and stops | `[-]` | `feat/vcs-shape` | #11 | **Removed from 0.4.0** (PR closed 2026-10-09). `branch-per-project` / `branch-per-ticket` / `trunk`, recommended by `team_shape`. Invariants for every shape: one ticket = one commit bundling code + re-spec + status, always with trailers. Explicitly *not* dstack's: merge strategy, CI, review rules, release tagging. `/dstack-ticket` gains the close-out step it never had. |

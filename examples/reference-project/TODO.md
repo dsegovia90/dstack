@@ -1,9 +1,9 @@
 # Digest Emails — Ticket DAG
 
 See `notes.md` for the full design doc (Pass 1 intake, Pass 2 architecture, Pass 3 phasing this
-DAG is drawn from). This file is a **skeleton only** — one line per ticket. Full scope, files,
-acceptance, and re-spec narratives live in `tickets/<id>.md`. If you're about to write more
-than one line per ticket here, it belongs in the ticket file instead.
+DAG is drawn from). This file is a **skeleton only** — one table row per ticket. Full scope,
+files, acceptance, and re-spec narratives live in `tickets/<id>.md`. If you're about to write
+more than one row per ticket here, it belongs in the ticket file instead.
 
 ## Status legend
 
@@ -15,6 +15,10 @@ than one line per ticket here, it belongs in the ticket file instead.
   barrel through it
 - 🎨 design-touching — check against the project's design ground rules (`notes.md` Step 1.8)
   before closing; not a hard gate, just a visible reminder
+- ✂ may split — may need more than one PR at its plan gate; extra branches add `-2`, `-3`
+
+Each ticket that changes code has one branch and one PR. The `Branch` column names it; `—`
+means no code, no branch.
 
 ## Dependency graph
 
@@ -36,15 +40,13 @@ D1 (schema)
 
 ## Tickets
 
-- [x] **D1** Schema migration — blocked-by: none (root) · blocks: D2, D3 · phase 1 ·
-  [detail](tickets/D1.md)
-- [x] **D2** Preferences UI 🎨 — blocked-by: D1 · blocks: D5 · phase 2 · [detail](tickets/D2.md)
-- [x] **D3** Digest content builder — blocked-by: D1 · blocks: D4, D5 · phase 2 ·
-  [detail](tickets/D3.md)
-- [!] **D4** Scheduled send job 🚧 — blocked-by: D3 · blocks: none · phase 3 ·
-  [detail](tickets/D4.md)
-- [ ] **D5** Unsubscribe/pause link 🎨 — blocked-by: D2, D3 · blocks: none · phase 3 ·
-  [detail](tickets/D5.md)
+| Ticket | Branch | Scope | Blocked by | Phase |
+|---|---|---|---|---|
+| [x] [D1](tickets/D1.md) | `feature/d1-schema-migration` | Schema migration | — | 1 |
+| [x] [D2](tickets/D2.md) 🎨 | `feature/d2-preferences-ui` | Preferences UI | D1 | 2 |
+| [x] [D3](tickets/D3.md) | `feature/d3-digest-content-builder` | Digest content builder | D1 | 2 |
+| [!] [D4](tickets/D4.md) 🚧 | `feature/d4-scheduled-send-job` | Scheduled send job | D3 | 3 |
+| [ ] [D5](tickets/D5.md) 🎨 | `feature/d5-unsubscribe-pause-link` | Unsubscribe/pause link | D2, D3 | 3 |
 
 ---
 

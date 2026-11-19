@@ -38,13 +38,15 @@ and find parallel work rather than stopping — but you stop *cleanly* when stop
   shipped, and log it. No need to ask.
 - **Auto-parallel on blockers.** When a ticket can't proceed, mark it `[!]` in `TODO.md`,
   record the blocker in `tickets/<id>.md`, and **switch to other eligible work** automatically.
-- **One commit per ticket.** Each ticket is a self-contained, reviewable chunk, so it gets
-  its own commit. Before writing any code this session, ensure you're on a **working branch**
-  — if on `main`/`master`, branch off first (e.g. `dstack/<project>`). After a ticket is
-  verified and re-spec'd, commit *just that ticket's* changes with a message naming the work,
-  and trailers `Dstack-Project: <project>` and `Dstack-Ticket: <id>` (see Step 6) — these are
-  what let `/dstack-retro` find this project's history later even after the branch is merged
-  and deleted.
+- **One branch per ticket, one PR per ticket.** Each ticket is a self-contained, reviewable
+  chunk, so it gets its own branch — the name in its `Branch` cell — created by the
+  branch-first step (Step 4) before any edit, on top of an open blocker's branch or the trunk.
+  Never commit to the trunk. After a ticket is verified and re-spec'd, commit *just that
+  ticket's* changes on its branch with trailers `Dstack-Project: <project>` and
+  `Dstack-Ticket: <id>` (see Step 6) — these are what let `/dstack-retro` find this project's
+  history later, across every ticket branch, even after they're merged and deleted. The first
+  commit's subject is the PR title. Opening the PR stays the human's unless config says
+  `branch.submit: draft`.
 - **Pause before going too far** (see Stop conditions). Don't thrash; don't overrun a blocker.
 
 ## 0. Read the arguments
@@ -69,15 +71,20 @@ it. Otherwise, if exactly one project has a `TODO.md`, use it (state which). If 
 which one.
 
 Parse from `TODO.md`:
-- the **ticket set** with statuses (`[ ]` open · `[~]` in-progress · `[x]` done · `[!]`
-  blocked/paused · 🚧 human-gate · 🎨 design-touching) — one line per ticket, pointing at
-  `tickets/<id>.md` for depth,
-- the **dependency edges** (`Blocked-by` / `Blocks`), **roots**, and **topological phases**,
+- the **ticket table** under `## Tickets` (format: `.claude/skills/dstack/tickets-and-branches.md`)
+  — one row per ticket, its id linking to `tickets/<id>.md` for depth: status (`[ ]` open ·
+  `[~]` in-progress · `[x]` done · `[!]` blocked/paused), markers (🚧 human-gate · 🎨
+  design-touching · ✂ may split), `Branch`, `Scope`, `Blocked by`. An older project may still
+  list one bullet per ticket instead — read either,
+- the **dependency edges** (`Blocked by`; blocks is its reverse), **roots**, and **topological
+  phases**,
 - the last ~10 lines of the **Execution log** inline; the full history lives in
   `execution-log-archive.md` if more context is needed.
 
 > Checkboxes are a **hint, not ground truth.** Before treating an upstream ticket as done,
 > sanity-check reality (the code on disk, tests) — the keystone exists because status drifts.
+> A done ticket whose PR isn't merged yet has its code on its own branch, not the trunk — look
+> there (`git diff origin/<trunk>...<branch>`).
 
 **If `resumability_cadence` is `days-apart` or `unpredictable-weeks`:** before doing anything
 else, give a short "since you were last here" recap — diff the Execution log and any
@@ -107,9 +114,15 @@ which are **not** 🚧 human-gated. Among eligible tickets, pick by:
 If the frontier is empty because an upstream ticket is only half-done, say so and name the
 blocker.
 
-## 4. Plan-gate (Pass-4 micro-plan) — cadence per `risk_tolerance`
+## 4. Branch first, then plan-gate (Pass-4 micro-plan) — cadence per `risk_tolerance`
 
-If this ticket requires a plan-gate per the Operating contract above: enter **plan mode**.
+**Branch first, for every ticket, before any edit.** Run the branch-first step in
+`.claude/skills/dstack/tickets-and-branches.md`: read the ticket's `Branch`, pick its parent
+(an open blocker's branch — often the ticket you just finished — else the trunk), and create or
+check out that branch with the tool `./dstack-config branching <project>` names. Findings-triage
+edits from Step 2 move onto it with the ticket. A `—` ticket has no branch; skip it.
+
+Then, if this ticket requires a plan-gate per the Operating contract above: enter **plan mode**.
 Give the plan the ticket's *backward* context (its upstream deps — the current state of the
 world) and *forward* context (its downstream dependents — the seams to leave). If
 `team_shape` is `small-team` or `larger-team`, write thicker forward-context into
@@ -119,14 +132,10 @@ recommended default from Step 1.5). Present the micro-plan and **wait
 for the human to approve, correct, or redirect.** Do not write code until approved.
 
 This is also the point where `tickets/<id>.md` — a stub until now — gets filled in with real
-scope. Mark the ticket `[~]` in `TODO.md` when work begins.
+scope. Mark the ticket `[~]` in `TODO.md` when work begins. If the micro-plan splits the ticket
+into more than one PR, follow rule 6 of the branch-first step.
 
 ## 5. Implement + verify
-
-**Working branch first.** Before writing code on the first ticket of the session, make sure
-you're not on `main`/`master`. If you are, branch off to a working branch (e.g.
-`dstack/<project>`) so all ticket commits land off the trunk. On later tickets this is a
-no-op — you're already on the branch.
 
 After approval (or directly, at `full-autonomy-except-gates`), implement in warm context. Then
 **verify** before claiming done — run the app and/or tests as appropriate for the ticket.
@@ -151,8 +160,9 @@ lines, move the older entries into `execution-log-archive.md` (append-only, neve
 keep only the recent tail inline.
 
 **Commit the ticket.** Stage and commit *just this ticket's* changes (including the `TODO.md`
-status/log updates and the `tickets/<id>.md` re-spec) as one chunk. Use a message that names
-the ticket and what shipped, with trailers:
+status/log updates and the `tickets/<id>.md` re-spec) on the ticket's branch. Use a message
+that names the ticket and what shipped — the first commit's subject becomes the PR title — with
+trailers:
 
 ```
 T2: alias /api/bookmarks→/api/items, keep domains route
@@ -161,8 +171,14 @@ Dstack-Project: <project>
 Dstack-Ticket: T2
 ```
 
-One ticket = one commit, on the working branch from Step 5 — never commit straight to
-`main`/`master`.
+One ticket = one branch = one PR, made in Step 4 — never commit straight to the trunk. More
+than one commit on the branch is fine; each one carries the trailers.
+
+**The PR.** Read `submit` from `./dstack-config branching <project>`. `manual` (the default):
+don't push — print the exact command for the user (`gt submit --no-interactive -d` with
+Graphite; `git push -u origin <branch> && gh pr create --draft --fill-first --base <parent>`
+with git). `draft`: run it yourself; the PR opens as a draft, and review and merge stay human.
+Either way, keep going — the next ticket can stack on this one's open branch.
 
 Then return to **Step 2** for the next ticket (findings scan first, every loop).
 
@@ -171,7 +187,12 @@ Then return to **Step 2** for the next ticket (findings scan first, every loop).
 - **Blocked ticket:** mark `[!]`, add a **Blocker:** note in `tickets/<id>.md` (what's missing,
   what would unblock it), log it in `TODO.md`'s Execution log, and go find parallel eligible
   work (Step 3). A discovered *new dependency* is not a defect — add it to the DAG as a new
-  ticket (the graph grows during execution).
+  ticket: a new table row with its `Branch` filled as Pass 3 would
+  (`tickets-and-branches.md` § Branch names) and a `tickets/<id>.md` stub (the graph grows
+  during execution). Before you switch to other work, commit the blocked ticket's notes and any
+  partial work on its own branch, with trailers and a subject naming the ticket's work
+  (`D4: scheduled send job`), since it may become the PR title — so the working tree is clean
+  for the next branch-first step.
 - **🚧 Human-gate / risky step:** do **not** proceed autonomously through migrations on live
   data, secret/credential changes, destructive ops (drops, force-push, `rm -rf`), or external
   infra (deploys, third-party service setup) — at **any** `risk_tolerance` tier. You may

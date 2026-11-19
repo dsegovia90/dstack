@@ -173,4 +173,4 @@ actually re-opened and re-verified, not just copy-pasted.
 - Phase 3: `D4` 🚧, `D5` 🎨 (parallelizable — `D4` needs `D3`; `D5` needs `D2`+`D3`)
 
 Full ticket detail lives in `tickets/*.md`, one file per id — `TODO.md` carries only the
-one-line skeleton per the two-resolution convention. See `TODO.md` in this same folder.
+one-row-per-ticket skeleton per the two-resolution convention. See `TODO.md` in this same folder.

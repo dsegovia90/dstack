@@ -37,11 +37,19 @@ A new adapter needs to provide, in whatever native form the target harness uses:
   `dstack-config.md`, the one command that writes config (using `./dstack-config paths`). The
   file locations (`~/.dstack/…`, `doc/dstack/config.md`, `doc/dstack/<project>/config.md`)
   are shared, so config written under one harness is read under another.
+- **A branch-first step before any edit for a ticket.** Every ticket that changes code gets one
+  branch and one PR, named in the ticket table's `Branch` column. Before touching a ticket, the
+  command reads that name, picks the parent (an open blocker's branch, else the trunk), and
+  creates or checks out the branch with the tool config names. The step is plain git/Graphite
+  commands, not harness-specific — `claude-code/skill/dstack/tickets-and-branches.md` has the
+  exact rules, the ticket-table format, and the "one ticket, one PR" close-out. Read the
+  settings with `./dstack-config branching <project>`, never by parsing config files yourself.
 - **Whatever the harness needs for `AskUserQuestion`-style forks** — a way to present a
   recommended option plus alternatives and wait for a choice, used throughout Pass 1–3 and the
   ticketing-fork decision.
 
 None of the conventions themselves (`doc/dstack/<project>/notes.md` + `TODO.md` + `tickets/` +
-`findings/` + `retros/` + `config.md`, the front-matter shape, the commit-trailer convention) are
+`findings/` + `retros/` + `config.md`, the front-matter shape, the ticket-table format and its
+`Branch` column, the `branch.*` config keys, the commit-trailer convention) are
 harness-specific — a new adapter should point at the same files and conventions the
 `claude-code/` adapter uses, just invoked through different mechanics.

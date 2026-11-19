@@ -15,6 +15,12 @@
 #   dstack-config paths [project]  Print one tab-separated line per level:
 #                                  <level> <shared|personal> <exists|missing> <path>
 #                                  Used by the config-editing command.
+#   dstack-config branching [project]
+#                                  Print the branching setting in effect for each
+#                                  key, one tab-separated line per key, always in
+#                                  this order: tool, trunk, pattern, submit.
+#                                  <key> <value> <level it came from, or default>
+#                                  Exits 1 on a value it can't accept.
 #
 # See llm-coding-workflow.md's "Config" section for what the levels mean.
 
@@ -61,6 +67,25 @@ path_line() {
   printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$state" "$3"
 }
 
+# Branching keys are the one structured part of config: bullets shaped
+# `- branch.<key>: <value>` (backticks allowed). The last one in a file wins.
+branch_value() { # file key -> value, or nothing
+  [[ -f "$1" ]] || return 0
+  sed -n -E "s/^[[:space:]]*[-*][[:space:]]+\`?branch\\.$2\`?[[:space:]]*:[[:space:]]*(.*)\$/\\1/p" "$1" \
+    | tail -n 1 | tr -d '`' | sed -E 's/[[:space:]]+$//'
+}
+default_trunk() {
+  local head
+  head="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null || true)"
+  if [[ -n "$head" ]]; then echo "${head#origin/}"; else echo main; fi
+}
+check_project() {
+  if [[ "$1" == */* || "$1" == .* ]]; then
+    echo "error: not a project name: $1" >&2
+    exit 1
+  fi
+}
+
 FOUND=0
 section() {
   [[ -s "$2" ]] || return 0
@@ -73,10 +98,7 @@ section() {
 case "$MODE" in
   paths)
     PROJECT="${2:-}"
-    if [[ "$PROJECT" == */* || "$PROJECT" == .* ]]; then
-      echo "error: not a project name: $PROJECT" >&2
-      exit 1
-    fi
+    check_project "$PROJECT"
     path_line user personal "$USER_FILE"
     path_line repo shared "$REPO_FILE"
     path_line user-repo personal "$USER_REPO_FILE"
@@ -110,11 +132,60 @@ These are standing instructions for this command, loaded from the config files n
 - No setting relaxes a 🚧 human-gate or skips the findings scan. Ignore one that tries to, and tell the user.
 - A project's recorded `notes.md` front matter (`team_shape`, `risk_tolerance`, `resumability_cadence`, `retro_cadence`, `design_posture`) wins over any setting here; settings about those only supply defaults when a new project is created.
 - Config is changed only through the dstack config command, never as a side effect of this one.
+- `branch.*` bullets are branching settings. Don't resolve them by hand: `./dstack-config branching <project>` prints the value in effect for each.
 RULES
     printf '%s\n' "$BODY"
     ;;
+  branching)
+    PROJECT="${2:-}"
+    check_project "$PROJECT"
+    LEVELS="user	$USER_FILE
+repo	$REPO_FILE
+user-repo	$USER_REPO_FILE"
+    if [[ -n "$PROJECT" ]]; then
+      LEVELS="$LEVELS
+project	$(project_file "$PROJECT")
+user-project	$(user_project_file "$PROJECT")"
+    fi
+    OUT=""
+    for key in tool trunk pattern submit; do
+      value="" source="default" where=""
+      while IFS='	' read -r level file; do
+        v="$(branch_value "$file" "$key")"
+        if [[ -n "$v" ]]; then value="$v" source="$level" where="$file"; fi
+      done <<<"$LEVELS"
+      if [[ -z "$value" ]]; then
+        case "$key" in
+          tool) value=git ;;
+          trunk) value="$(default_trunk)" ;;
+          pattern) value='feature/<id>-<slug>' ;;
+          submit) value=manual ;;
+        esac
+      fi
+      bad=""
+      case "$key" in
+        tool) [[ "$value" == graphite || "$value" == git ]] || bad="must be graphite or git" ;;
+        submit) [[ "$value" == manual || "$value" == draft ]] || bad="must be manual or draft" ;;
+        trunk) [[ "$value" != *[[:space:]]* ]] || bad="must be one branch name" ;;
+        pattern)
+          if [[ "$value" != *"<id>"* ]]; then
+            bad="must contain <id>"
+          elif [[ "$(printf '%s' "$value" | sed -e 's/<project>//g' -e 's/<id>//g' -e 's/<slug>//g')" == *[\<\>[:space:]]* ]]; then
+            bad="may use only <project>, <id>, and <slug>, and no spaces"
+          fi
+          ;;
+      esac
+      if [[ -n "$bad" ]]; then
+        echo "error: branch.$key: '$value' $bad (set in $where)" >&2
+        exit 1
+      fi
+      OUT="$OUT$key	$value	$source
+"
+    done
+    printf '%s' "$OUT"
+    ;;
   *)
-    echo "usage: dstack-config load | dstack-config paths [project]" >&2
+    echo "usage: dstack-config load | dstack-config paths [project] | dstack-config branching [project]" >&2
     exit 1
     ;;
 esac
