@@ -220,8 +220,12 @@ blind; otherwise ask directly:
   full-repo sweep.
 - **Pass 3 — Execution phasing + DAG:** add an execution-by-phases section; turn the groomed
   seams into tickets chained by dependency (`blocked-by` / `blocks`), with roots and
-  topological phases called out. **Keep this ticket set to one-liners in the doc itself** —
-  full scope/files/acceptance per ticket is generated in Step 3, not written here.
+  topological phases called out. **The ticket set is the ticket table** defined in
+  `tickets-and-branches.md` (next to this file) — one row per ticket: `Ticket`, `Branch`,
+  `Scope`, `Blocked by`, then any optional columns such as `Phase`. Never write it as bullets.
+  Full scope/files/acceptance per ticket is generated in Step 3, not written here. The
+  `Branch` column is filled in Step 3, once the fork is picked (Fork A's names come from
+  Linear).
 
 **Diagrams (Pass 1 and Pass 2).** Where a section has a shape that's hard to read as prose,
 **offer** to draw it in the notation `diagrams` names (unset → Mermaid; `none` → don't offer).
@@ -276,11 +280,20 @@ linked ticket, or a re-spec comment on an existing one), the same thing that wou
 anyway. See `llm-coding-workflow.md`'s "Findings" section and `dstack-ticket.md` Step 3 for the
 scan/triage mechanics.
 
+**Both forks: every ticket that changes code gets one branch and one PR, and the ticket table
+names the branch** (see `tickets-and-branches.md` § Branch names). Fill each row's `Branch` as
+the ticket is created — `—` for a ticket with no code (a spike, infra, a rollout, a flag flip).
+Mark a ticket that may need more than one PR with ✂. Later commands read these names; none of
+them makes one up.
+
 ### Fork A — Linear (structured / team / large, complex projects)
-- The DAG lives in Linear (ticket↔ticket links); the doc holds the skeleton **only** — link +
-  one-line title per ticket, nothing more. Linear is the sole source of ticket detail; don't
-  duplicate scope/acceptance into the doc once Linear has it, that's redundancy with no sync
-  guarantee.
+- The DAG lives in Linear (ticket↔ticket links); the doc holds the skeleton **only** — the
+  ticket table, one row per ticket, nothing more. Linear is the sole source of ticket detail;
+  don't duplicate scope/acceptance into the doc once Linear has it, that's redundancy with no
+  sync guarantee.
+- **Branch names come from Linear.** Right after creating each issue, read its `gitBranchName`
+  and copy it verbatim into the row's `Branch` cell. Keep that copy even if the issue's title
+  changes later. The issue id inside the name is how Linear links the PR back to the issue.
 - **Re-spec discipline:** a Linear description can be silently overwritten with no diff trail.
   Before updating a ticket's description to match what shipped, add a **Linear comment**
   narrating original-spec → actual-shipped → why. That comment thread is what a later
@@ -296,12 +309,16 @@ scan/triage mechanics.
 
 ### Fork B — Local TODO.md (lighter weight / solo / autonomous) *(default for this repo today)*
 - Generate **`doc/dstack/<project>/TODO.md`** as a pure **skeleton**: a status legend
-  (`[ ] [~] [x] [!]`, plus 🚧 human-gate and 🎨 design-touching), the DAG diagram, roots +
-  topological phases, and **one line per ticket** — `- [ ] **T3** Recipient mgmt — blocked-by:
-  T1,T3 · blocks: T6,T7 · phase 3 · [detail](tickets/T3.md)` — plus only the last ~10 lines of
-  the Execution log (older entries roll into `execution-log-archive.md`). Match the shape used
-  in `examples/reference-project/TODO.md`. **If you're about to write more than that one line
-  per ticket into `TODO.md`, stop — that content belongs in `tickets/<id>.md`.**
+  (`[ ] [~] [x] [!]`, plus 🚧 human-gate, 🎨 design-touching, and ✂ may-split), the DAG diagram,
+  roots + topological phases, and the **ticket table under `## Tickets`, one row per ticket** —
+  ``| [ ] [T3](tickets/T3.md) 🎨 | `feature/t3-recipient-mgmt` | Recipient mgmt | T1, T2 | 3 |``
+  — plus only the last ~10 lines of the Execution log (older entries roll into
+  `execution-log-archive.md`). Match the shape used in `examples/reference-project/TODO.md`.
+  **If you're about to write more than that one row per ticket into `TODO.md`, stop — that
+  content belongs in `tickets/<id>.md`.**
+- **Branch names come from `branch.pattern`** — run `./dstack-config branching <project>` and
+  fill each row's `Branch` from it, following `tickets-and-branches.md` § Branch names (how
+  `<id>` and `<slug>` are formed, and what to do if a name is already taken).
 - Create **`doc/dstack/<project>/tickets/<id>.md`** as an empty stub for every ticket in the
   DAG right now, so the skeleton's links never point at nothing — scope/files/acceptance get
   filled in only when a ticket is actually picked (`/dstack-ticket` or `/dstack-yolo`).
@@ -327,6 +344,10 @@ and `TODO.md` + `tickets/` + `findings/` if Fork B). Tell the user the exact nex
 
 - the **post-completion re-spec keystone** keeps tickets truthful, and it works best when it's
   bundled into the same commit/close-out step as the code — not left as a thing to remember;
+- **one ticket = one branch = one PR**, named in the ticket table — `/dstack-ticket` and
+  `/dstack-yolo` create (or check out) that branch before any edit, on top of an open blocker's
+  branch or the trunk; `/dstack-config` sets the tool (`git` or `graphite`), the trunk, and the
+  Fork B naming pattern;
 - **freestanding findings** (audits, reviews) get written to `findings/` and get scanned before
   every ticket pick — nothing should sit there un-triaged;
 - every row in the **open questions ledger** shows Resolved-with-citation, Deferred-with-target,
