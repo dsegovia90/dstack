@@ -48,8 +48,9 @@ Fork A:
 ### Cell rules — what a script can rely on
 
 - **Ticket** — these parts, in this order, separated by spaces:
-  1. **Status box** — `[ ]` open · `[~]` in progress · `[x]` done · `[!]` blocked. Required in
-     Fork B. Optional in Fork A, where Linear holds the real status and a box is only a hint.
+  1. **Status box — Fork B only**, and required there: `[ ]` open · `[~]` in progress · `[x]`
+     done · `[!]` blocked. A Fork A row has **no** status box: Linear is the only source of
+     Fork A status (see Status, below).
   2. **Local id** — letters then digits, no dash (`D3`, `MA12`). Plain, or as a link to its
      detail file (`[D3](tickets/D3.md)`). Fork A tickets have a local id too.
   3. **Markers**, if any — 🚧 human gate · 🎨 touches visible UI · ✂ may split into more than
@@ -73,9 +74,24 @@ Derive it when you need it.
 
 Projects from before the table list tickets as bullets (`- [ ] **D3** Title — blocked-by: D1 ·
 …` in Fork B, `- [ ] [ENG-101](url) Title` in Fork A). Every command still reads them. Pass 3
-no longer writes them. A bullet has no Branch, so the branch-first step treats it like an empty
+no longer writes them. Boxes in a Fork A doc — bullets or an older table — are ignored: never
+read for status, never ticked. A bullet has no Branch, so the branch-first step treats it like an empty
 Branch cell: offer to convert the whole ticket set to the table, filling every Branch (§ Branch
 names), rather than writing one name into one bullet. The user confirms before it's converted.
+
+## Status
+
+- **Fork B:** the status box in `TODO.md`'s ticket table. `[x]` means built, verified, and
+  committed on the ticket's branch; its PR may still be open, and a dependent ticket stacks on
+  it (branch-first step, rule 4). The box is flipped on the ticket's own branch, in the same
+  commit as its code.
+- **Fork A:** Linear only. The table has no status box, and nothing else in the repo records
+  Fork A status. Read it fresh when it's needed — one `list_issues` call for the project's
+  issues per pick, which gives every ticket's state for the eligible frontier. Set it in Linear
+  on each transition: the team's started status (status type `started`) when work on the ticket
+  begins, its completed status (type `completed`) when the work is done — Linear's GitHub
+  integration may do the second when the PR merges, if the team turned that on. Never write
+  Fork A status into the doc.
 
 ## Branch names
 
@@ -105,7 +121,7 @@ later: a finding spawned as a new ticket, a new dependency found mid-execution.
 
 Used by `/dstack-ticket` (Step 7, right after the pick is confirmed) and `/dstack-yolo` (the
 start of Step 4, for every ticket). It runs **before any file edit for the ticket** — its detail
-file, its status box, its code — so all of that lands on the ticket's branch.
+file, its Fork B status box, its code — so all of that lands on the ticket's branch.
 
 Read the settings first: `./dstack-config branching <project>` gives `tool`, `trunk`, and
 `submit`. With `tool: graphite`, run every `gt` command with `--no-interactive` (an agent can't
@@ -173,11 +189,21 @@ never fall back to raw git in a repo that asked for Graphite.
   `--fill-first` takes the title and description from the first commit, so the trailers are in
   the PR description too — they survive a squash merge that uses the PR description as the
   commit message.
-- `[x]` (Fork B) means built, verified, and committed on the ticket's branch. Its PR may still be
-  open; a dependent ticket stacks on it (rule 4).
+- Ticket status after this follows § Status: Fork B's box was flipped in the ticket's own
+  commits; Fork A's is set in Linear.
 
-## Known limit
+## Known limit — Fork B status on per-ticket branches
 
-Fork B keeps status and the Execution log in `TODO.md`, so sibling ticket branches (both cut
-from the trunk) each edit it. Merging the second one can conflict on neighboring rows or on the
-log's last lines. Keep both sides' edits when resolving. Stacked branches don't hit this.
+Fork B's boxes and Execution log live in `TODO.md`, and each ticket flips its own box on its own
+branch, in the same commit as its code — that bundling is what keeps re-spec reliable. Two
+consequences follow, and neither is solved here:
+
+- **Sibling PRs conflict.** Two ticket branches cut from the trunk edit neighboring rows and the
+  log's last lines; merging the second one conflicts there. Keep both sides' edits when
+  resolving. Stacked branches don't hit this.
+- **The trunk lags.** Until a ticket's PR merges, the trunk — and every branch cut from it —
+  still shows that ticket's box as it was before the work (usually `[ ]`). What guards against
+  redoing the work today: commands treat boxes as a hint and check the code, and the
+  branch-first step finds the ticket's existing branch and checks it out instead of making a
+  second one. A command reading `TODO.md` on a sibling branch can still list a built-but-unmerged
+  ticket as open until it looks at that branch.

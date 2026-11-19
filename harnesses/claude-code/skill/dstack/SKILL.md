@@ -291,6 +291,9 @@ them makes one up.
   ticket table, one row per ticket, nothing more. Linear is the sole source of ticket detail;
   don't duplicate scope/acceptance into the doc once Linear has it, that's redundancy with no
   sync guarantee.
+- **No status boxes in the Fork A table.** Linear is the only source of ticket status; nothing
+  in the repo records it (see `tickets-and-branches.md` § Status). A row is local id, markers,
+  issue link — then `Branch`, `Scope`, `Blocked by`.
 - **Branch names come from Linear.** Right after creating each issue, read its `gitBranchName`
   and copy it verbatim into the row's `Branch` cell. Keep that copy even if the issue's title
   changes later. The issue id inside the name is how Linear links the PR back to the issue.

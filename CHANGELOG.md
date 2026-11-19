@@ -8,9 +8,12 @@
   for every ticket at once, `/dstack-ticket` had no branch step, and repos that ship through
   Graphite block raw `git checkout -b`. Now:
   - **One ticket-table format, both forks:** `| Ticket | Branch | Scope | Blocked by |`, then
-    optional columns (`Phase`, `Days`, …). The `Ticket` cell holds the status box (required in
-    Fork B), the local id, the markers 🚧 🎨 ✂ (new: may split into more than one PR), and for
-    Fork A the `[ID](url)` link. Exact cell rules, written for scripts, are in the adapter's
+    optional columns (`Phase`, `Days`, …). The `Ticket` cell holds, in Fork B, the status box,
+    the local id, and the markers 🚧 🎨 ✂ (new: may split into more than one PR); in Fork A,
+    the local id, the markers, and the `[ID](url)` link — **no status box**. Linear is the only
+    source of Fork A status: read fresh with one `list_issues` call per pick, set in Linear on
+    each transition (`/dstack-ticket` now sets the started status once the branch exists), and
+    never recorded in the repo; boxes in older Fork A docs are ignored. Exact cell rules, written for scripts, are in the adapter's
     new `skill/dstack/tickets-and-branches.md`. Bullet ticket sets are legacy: still read,
     never written; the first branch-first step on one offers to convert it.
   - **Pass 3 fills `Branch`:** Fork A copies each Linear issue's `gitBranchName` verbatim right

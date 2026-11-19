@@ -93,7 +93,7 @@ The fix is structural, not a discipline to remember: **three tiers, not two.**
 2. **The skeleton** (the DAG artifact itself — a ticketing-system board, or a lightweight local file) — status, the dependency diagram, phases, and **one table row per ticket**: id, the ticket's branch, a one-line scope, blocked-by, phase, a pointer to tier 3. If you're about to write more than that one row into the skeleton, stop — it belongs in tier 3.
 3. **Per-ticket detail** — scope, files, acceptance, the Pass-4 micro-plan, and the re-spec narrative once it exists. Created as a stub the moment a ticket enters the DAG (so pointers never dangle), filled in only when the ticket is actually picked — depth exists exactly where work has reached, not everywhere at once.
 
-Where a ticketing system with its own navigable detail view already exists, it *is* tier 2+3 combined — don't also duplicate ticket scope/acceptance into the doc. That's pure redundancy with no sync guarantee: two copies of the same fact, one of which will eventually go stale. The doc references a ticket by id/link and a one-line title, full stop; the ticketing system is the sole source of ticket detail.
+Where a ticketing system with its own navigable detail view already exists, it *is* tier 2+3 combined — don't also duplicate ticket scope/acceptance into the doc. That's pure redundancy with no sync guarantee: two copies of the same fact, one of which will eventually go stale. The doc references a ticket by id/link and a one-line title, full stop; the ticketing system is the sole source of ticket detail **and status** — the doc's skeleton carries no status for those tickets, so there is no second copy to drift.
 
 ---
 

@@ -27,7 +27,7 @@ order, stopping at the first rule that matches:
 4. **A Linear identifier** (`KAI-123` — uppercase team key, dash, number) → Fork A. Find the
    project whose living doc links that issue; if none does, ask which project. The issue's
    live state comes from Linear MCP in Step 4 as usual — if MCP isn't available, say so
-   plainly rather than guessing from the checkbox.
+   plainly rather than guessing; nothing in the repo records Fork A status.
 5. **Nothing matched** → say what was tried ("no project or ticket named `foo`") and fall
    through to the normal flow. Don't invent a match.
 
@@ -123,11 +123,12 @@ Inside the project folder, check what's actually there:
   Open the project's `README.md`/`notes.md` (the master living design doc) and find:
   - The **ticket set** — the ticket table (`tickets-and-branches.md`): each row's local id,
     `KAI-####` (or equivalent) Linear link, `Branch`, one-line `Scope`, and `Blocked by` — no
-    inline scope/acceptance; Linear is the sole source of that detail. An older doc may list
-    bullets with checkboxes instead — read either.
+    inline scope/acceptance and no status; Linear is the sole source of both. An older doc may
+    list bullets instead — read either, and ignore any boxes in it.
   - The **Execution phasing & dependency DAG** section — edges, roots, topological phases.
-  - Treat checkboxes as a hint, not ground truth — verify real state via `linear:get_issue`.
-    Use the Linear team/project referenced in *this project's own* living doc (its Pass-3
+  - **Status comes only from Linear.** Read it fresh with one `list_issues` call for this
+    project's issues per pick — that gives every ticket's state for the frontier. Never read
+    status from the doc, and never tick a box in it. Use the Linear team/project referenced in *this project's own* living doc (its Pass-3
     ticketing-fork decision should name the team); do not default to a team ID from another
     project or repo. If the doc doesn't name one and it's genuinely ambiguous, ask once.
   - A ticket is **done** only if Linear says so.
@@ -187,10 +188,14 @@ Once the pick is confirmed, and before any file edit for it, run the **branch-fi
 findings-triage edits from Step 3 move onto this branch with the ticket.
 
 Only then: for Fork B, fill in `tickets/<id>.md` (a stub until now) and set the ticket to `[~]`
-as part of entering the Pass-4 micro-plan. If the micro-plan splits the ticket into more than
+as part of entering the Pass-4 micro-plan. For Fork A, set the issue to the team's started
+status in Linear (status type `started`, e.g. In Progress; names differ per team) — nothing in
+the repo changes. If the micro-plan splits the ticket into more than
 one PR, follow that file's rule 6.
 
 When the work is done, it's **one PR for the ticket**: the first commit's subject is the PR
 title (`[KAI-123] …` for Fork A, `D3: …` for Fork B), every commit carries the
 `Dstack-Project:` / `Dstack-Ticket:` trailers, and `branch.submit` decides whether you open a
-draft PR or print the command for the user — see that file's "One ticket, one PR".
+draft PR or print the command for the user — see that file's "One ticket, one PR". A Fork A
+ticket's completed status is set in Linear (by Linear's GitHub integration when the PR merges,
+if the team turned that on), never in the doc.
