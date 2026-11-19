@@ -29,6 +29,8 @@ Never derive these paths by hand — `dstack-config` (repo root, installed along
   `shared|personal`, `exists|missing`, absolute path) in precedence order.
 - `./dstack-config load` prints every level that's set, in precedence
   order, preceded by the rules for applying it.
+- `./dstack-config branching [project]` prints the branching setting in effect for each key
+  (see Branching, below).
 
 `<repo-id>` comes from the `origin` remote, so every clone and worktree of the repo resolves to
 the same personal files; a repo with no `origin` falls back to its main checkout's path.
@@ -65,13 +67,54 @@ locations, and the rules it prints are the same for every harness.
 ## File format
 
 Plain markdown, one setting per bullet, written as an instruction. A `##` heading per topic is
-fine once a file grows; nothing parses these files, so keep them readable rather than
-structured.
+fine once a file grows. Apart from the branching keys below, nothing parses these files, so keep
+them readable rather than structured.
 
 ```markdown
 # dstack config — repo
 
 - Never recommend the Linear fork here; this repo tracks everything in local `TODO.md`.
 - Default `retro_cadence` to `close-out-only` for new projects.
-- Branch names for `/dstack-yolo` are `feat/<project>`, not `dstack/<project>`.
+
+## Branching
+- branch.tool: graphite
+- branch.trunk: main
 ```
+
+## Branching
+
+How the branch-first step (`tickets-and-branches.md`) makes each ticket's branch, and whether a
+tool may open its PR. These are the one structured part of config, because scripts read them
+too (`dstack-config` itself, and add-ons that run tickets). Each key is a bullet in exactly this
+shape, usually under a `## Branching` heading:
+
+```markdown
+- branch.<key>: <value>
+```
+
+Backticks around the key or the value are allowed. If a file sets a key twice, the last one
+counts.
+
+| Key | Values | Default | What it does |
+|---|---|---|---|
+| `branch.tool` | `graphite` or `git` | `git` | How branches are made. `graphite`: `gt sync`, `gt checkout`, `gt create`. `git`: `git fetch`, `git switch -c`. Repos that ship through Graphite often block a raw `git checkout -b`. |
+| `branch.trunk` | a branch name | `origin`'s default branch, else `main` | The parent of a ticket with no open blocker. |
+| `branch.pattern` | a pattern using `<project>`, `<id>`, `<slug>`; must contain `<id>` | `feature/<project>-<id>-<slug>` | Fork B branch names (filled into the ticket table at Pass 3). Fork A never uses it: its names are the Linear issue's own `gitBranchName`. |
+| `branch.submit` | `manual` or `draft` | `manual` | `manual`: when a ticket is done, print the PR command for the user to run. `draft`: run it, opening a draft PR. Review and merge stay human either way. |
+
+Any level can set them, with the usual precedence. The usual place is `repo`, since a team
+shares one tool and one trunk.
+
+Never resolve these by hand. `./dstack-config branching [project]` prints all four, one
+tab-separated line per key, always in the order above — the key, the value in effect, and the
+level it came from (`default` when no level sets it):
+
+```
+tool	graphite	repo
+trunk	main	default
+pattern	feature/<project>-<id>-<slug>	default
+submit	manual	default
+```
+
+It exits 1, printing nothing on stdout, if a value is invalid (for example `branch.tool: svn`),
+naming the file that set it.

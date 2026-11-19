@@ -78,6 +78,12 @@ Turn the user's description into concrete setting bullets (see the file format i
   a *default for new projects* and say that existing projects keep their recorded answer. At a
   project level, don't write it — point at that project's `notes.md` front matter, which is
   where the answer lives, and offer to edit that instead.
+- **Branching.** If it's about how ticket branches are made, which branch is the trunk, how
+  Fork B branches are named, or whether dstack may open PRs, write it as a `branch.*` key in
+  the exact shape `config.md` § Branching gives — never as prose, since scripts read these. Check
+  the value against that table (for example, `branch.tool` is `graphite` or `git`; a pattern
+  must contain `<id>`). After writing, run `./dstack-config branching <project>` and show the
+  user the result, so they see the value now in effect and the level it comes from.
 - **Repo facts.** If it's a fact about the codebase rather than an instruction about dstack
   (stack, ports, verify commands, conventions), recommend `CLAUDE.md` instead and let the user
   choose.
